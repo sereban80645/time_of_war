@@ -12,8 +12,8 @@ class TimeOfWar extends StatefulWidget {
 }
 
 class _TimeOfWarState extends State<TimeOfWar> {
-  bool _show2022 = true, _show2014 = false, _showHours = true;
-  double _fontSize = 35, _strokeWidth = 3, _opacity = 0.8;
+  bool _show2022 = true, _show2014 = false, _showHour = true;
+  double _fontSize = 35, _strokeWidth = 3, _opacity = 0.5;
   Offset _pos = const Offset(50, 100);
   File? _bgFile;
 
@@ -26,121 +26,204 @@ class _TimeOfWarState extends State<TimeOfWar> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), (t) => setState(() {}));
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {});
+    });
+  }
+
+  String calculateTimeDifference(DateTime startDate) {
+    DateTime now = DateTime.now();
+    int years = now.year - startDate.year;
+    int months = now.month - startDate.month;
+    int days = now.day - startDate.day;
+    int hours = now.hour - startDate.hour;
+
+    if (hours < 0) {
+      hours += 24;
+      days--;
+    }
+    if (days < 0) {
+      var prevMonth = DateTime(now.year, now.month, 0);
+      days += prevMonth.day;
+      months--;
+    }
+    if (months < 0) {
+      months += 12;
+      years--;
+    }
+
+    if (_showHour) {
+      return '$yearsр. $monthsміс. $daysд. $hoursг.';
+    } else {
+      return '$yearsр. $monthsміс. $daysд.';
+    }
   }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) setState(() => _bgFile = File(picked.path));
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) setState(() => _bgFile = File(pickedFile.path));
   }
 
-  String _time(DateTime d) {
-    Duration diff = DateTime.now().difference(d);
-    int y = diff.inDays ~/ 365;
-    int d_off = diff.inDays % 365;
-    return _showHours ? "$yр. $d_offд. ${diff.inHours % 24}г." : "$yр. $d_offд.";
-  }
-
-  Widget _rgbSlider(String name, double val, Color color, Function(double) onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildText(String text, double size, Color color, Color stroke) {
+    return Stack(
       children: [
-        Text("$name: ${val.toInt()}", style: const TextStyle(color: Colors.white, fontSize: 12)),
-        Slider(value: val, max: 255, activeColor: color, onChanged: onChanged),
+        Text(text,
+            style: TextStyle(
+                fontSize: size,
+                foreground: Paint()
+                  ..style = PaintingStyle.stroke
+                  ..strokeWidth = _strokeWidth
+                  ..color = stroke)),
+        Text(text, style: TextStyle(fontSize: size, color: color)),
       ],
-    );
-  }
-
-  void _openMenu() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: const Color(0xFF121212),
-      builder: (context) => StatefulBuilder(builder: (context, setM) => Container(
-        height: MediaQuery.of(context).size.height * 0.85,
-        padding: const EdgeInsets.all(20),
-        child: DefaultTabController(
-          length: 3,
-          child: Column(children: [
-            const TabBar(tabs: [Tab(text: "Головне"), Tab(text: "Кольори"), Tab(text: "Контур")]),
-            Expanded(child: TabBarView(children: [
-              // Вкладка 1
-              ListView(children: [
-                SwitchListTile(title: const Text("Війна 2022", style: TextStyle(color: Colors.white)), value: _show2022, onChanged: (v){setState(()=>_show2022=v);setM((){});}),
-                SwitchListTile(title: const Text("Війна 2014", style: TextStyle(color: Colors.white)), value: _show2014, onChanged: (v){setState(()=>_show2014=v);setM((){});}),
-                SwitchListTile(title: const Text("Показ годин", style: TextStyle(color: Colors.orange)), value: _showHours, onChanged: (v){setState(()=>_showHours=v);setM((){});}),
-                const Text("Прозорість фону", style: TextStyle(color: Colors.grey)),
-                Slider(value: _opacity, onChanged: (v){setState(()=>_opacity=v);setM((){});}),
-                const Text("Розмір тексту", style: TextStyle(color: Colors.grey)),
-                Slider(value: _fontSize, min: 10, max: 70, onChanged: (v){setState(()=>_fontSize=v);setM((){});}),
-                ElevatedButton.icon(icon: const Icon(Icons.image), label: const Text("Вибрати ФОТО з галереї"), onPressed: _pickImage),
-              ]),
-              // Вкладка 2
-              ListView(children: [
-                const Text("ФОН ПАНЕЛІ", style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold)),
-                _rgbSlider("Червоний (R)", _br, Colors.red, (v){setState(()=>_br=v);setM((){});}),
-                _rgbSlider("Зелений (G)", _bg, Colors.green, (v){setState(()=>_bg=v);setM((){});}),
-                _rgbSlider("Синій (B)", _bb, Colors.blue, (v){setState(()=>_bb=v);setM((){});}),
-                const Divider(color: Colors.white24),
-                const Text("КОЛІР ТЕКСТУ", style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold)),
-                _rgbSlider("Червоний (R)", _tr, Colors.red, (v){setState(()=>_tr=v);setM((){});}),
-                _rgbSlider("Зелений (G)", _tg, Colors.green, (v){setState(()=>_tg=v);setM((){});}),
-                _rgbSlider("Синій (B)", _tb, Colors.blue, (v){setState(()=>_tb=v);setM((){});}),
-              ]),
-              // Вкладка 3
-              ListView(children: [
-                const Text("Товщина контуру", style: TextStyle(color: Colors.white)),
-                Slider(value: _strokeWidth, min: 0, max: 15, onChanged: (v){setState(()=>_strokeWidth=v);setM((){});}),
-                const Text("КОЛІР КОНТУРУ", style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold)),
-                _rgbSlider("R", _sr, Colors.red, (v){setState(()=>_sr=v);setM((){});}),
-                _rgbSlider("G", _sg, Colors.green, (v){setState(()=>_sg=v);setM((){});}),
-                _rgbSlider("B", _sb, Colors.blue, (v){setState(()=>_sb=v);setM((){});}),
-              ]),
-            ])),
-          ]),
-        ),
-      )),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final bgColor = Color.fromRGBO(_br.toInt(), _bg.toInt(), _bb.toInt(), 1);
+    final textColor = Color.fromRGBO(_tr.toInt(), _tg.toInt(), _tb.toInt(), 1);
+    final strokeColor = Color.fromRGBO(_sr.toInt(), _sg.toInt(), _sb.toInt(), 1);
+
     return Scaffold(
-      body: Container(
-        width: double.infinity, height: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.black,
-          image: _bgFile != null ? DecorationImage(image: FileImage(_bgFile!), fit: BoxFit.cover) : null,
-        ),
-        child: Stack(children: [
+      backgroundColor: bgColor,
+      body: Stack(
+        children: [
+          if (_bgFile != null)
+            Positioned.fill(
+              child: Opacity(
+                opacity: _opacity,
+                child: Image.file(_bgFile!, fit: BoxFit.cover),
+              ),
+            ),
           Positioned(
-            left: _pos.dx, top: _pos.dy,
+            left: _pos.dx,
+            top: _pos.dy,
             child: GestureDetector(
-              onPanUpdate: (d) => setState(() => _pos += d.delta),
-              child: Container(
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: Color.fromRGBO(_br.toInt(), _bg.toInt(), _bb.toInt(), _opacity),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  if (_show2022) _outlineText(_time(DateTime(2022, 2, 24, 4, 0))),
-                  if (_show2014) _outlineText(_time(DateTime(2014, 2, 20))),
-                ]),
+              onPanUpdate: (details) => setState(() => _pos += details.delta),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (_show2022) _buildText(calculateTimeDifference(DateTime(2022, 2, 24)), _fontSize, textColor, strokeColor),
+                  if (_show2014) _buildText(calculateTimeDifference(DateTime(2014, 2, 20)), _fontSize, textColor, strokeColor),
+                ],
               ),
             ),
           ),
-          Positioned(bottom: 30, right: 30, child: FloatingActionButton(backgroundColor: Colors.yellow, onPressed: _openMenu, child: const Icon(Icons.tune, color: Colors.black))),
-        ]),
+          DraggableScrollableSheet(
+            initialChildSize: 0.3,
+            minChildSize: 0.1,
+            maxChildSize: 0.8,
+            builder: (context, scrollController) {
+              return Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E1E1E),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                child: DefaultTabController(
+                  length: 3,
+                  child: Column(
+                    children: [
+                      const TabBar(
+                        indicatorColor: Colors.deepPurpleAccent,
+                        labelColor: Colors.deepPurpleAccent,
+                        unselectedLabelColor: Colors.grey,
+                        tabs: [
+                          Tab(text: 'Головне'),
+                          Tab(text: 'Кольори'),
+                          Tab(text: 'Контур'),
+                        ],
+                      ),
+                      Expanded(
+                        child: TabBarView(
+                          children: [
+                            // Tab 1
+                            ListView(
+                              controller: scrollController,
+                              children: [
+                                SwitchListTile(
+                                  title: const Text('Війна 2022', style: TextStyle(color: Colors.white)),
+                                  value: _show2022,
+                                  activeColor: Colors.deepPurpleAccent,
+                                  onChanged: (v) => setState(() => _show2022 = v),
+                                ),
+                                SwitchListTile(
+                                  title: const Text('Війна 2014', style: TextStyle(color: Colors.white)),
+                                  value: _show2014,
+                                  activeColor: Colors.deepPurpleAccent,
+                                  onChanged: (v) => setState(() => _show2014 = v),
+                                ),
+                                SwitchListTile(
+                                  title: const Text('Показ годин', style: TextStyle(color: Colors.orange)),
+                                  value: _showHour,
+                                  activeColor: Colors.deepPurpleAccent,
+                                  onChanged: (v) => setState(() => _showHour = v),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Прозорість фону', style: TextStyle(color: Colors.grey)),
+                                      Slider(value: _opacity, min: 0, max: 1, activeColor: Colors.deepPurpleAccent, onChanged: (v) => setState(() => _opacity = v)),
+                                      const Text('Розмір тексту', style: TextStyle(color: Colors.grey)),
+                                      Slider(value: _fontSize, min: 10, max: 100, activeColor: Colors.deepPurpleAccent, onChanged: (v) => setState(() => _fontSize = v)),
+                                      const SizedBox(height: 10),
+                                      ElevatedButton.icon(
+                                        onPressed: _pickImage,
+                                        icon: const Icon(Icons.image, color: Colors.black),
+                                        label: const Text('Вибрати ФОТО з галереї', style: TextStyle(color: Colors.black)),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFFF3E5F5),
+                                          minimumSize: const Size(double.infinity, 50),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // Tab 2
+                            ListView(
+                              controller: scrollController,
+                              children: [
+                                const Padding(padding: EdgeInsets.all(16), child: Text('Текст RGB', style: TextStyle(color: Colors.white))),
+                                Slider(value: _tr, min: 0, max: 255, activeColor: Colors.red, onChanged: (v) => setState(() => _tr = v)),
+                                Slider(value: _tg, min: 0, max: 255, activeColor: Colors.green, onChanged: (v) => setState(() => _tg = v)),
+                                Slider(value: _tb, min: 0, max: 255, activeColor: Colors.blue, onChanged: (v) => setState(() => _tb = v)),
+                                const Divider(color: Colors.grey),
+                                const Padding(padding: EdgeInsets.all(16), child: Text('Фон RGB', style: TextStyle(color: Colors.white))),
+                                Slider(value: _br, min: 0, max: 255, activeColor: Colors.red, onChanged: (v) => setState(() => _br = v)),
+                                Slider(value: _bg, min: 0, max: 255, activeColor: Colors.green, onChanged: (v) => setState(() => _bg = v)),
+                                Slider(value: _bb, min: 0, max: 255, activeColor: Colors.blue, onChanged: (v) => setState(() => _bb = v)),
+                              ],
+                            ),
+                            // Tab 3
+                            ListView(
+                              controller: scrollController,
+                              children: [
+                                const Padding(padding: EdgeInsets.all(16), child: Text('Контур RGB', style: TextStyle(color: Colors.white))),
+                                Slider(value: _sr, min: 0, max: 255, activeColor: Colors.red, onChanged: (v) => setState(() => _sr = v)),
+                                Slider(value: _sg, min: 0, max: 255, activeColor: Colors.green, onChanged: (v) => setState(() => _sg = v)),
+                                Slider(value: _sb, min: 0, max: 255, activeColor: Colors.blue, onChanged: (v) => setState(() => _sb = v)),
+                                const Divider(color: Colors.grey),
+                                const Padding(padding: EdgeInsets.all(16), child: Text('Товщина контуру', style: TextStyle(color: Colors.white))),
+                                Slider(value: _strokeWidth, min: 0, max: 15, activeColor: Colors.deepPurpleAccent, onChanged: (v) => setState(() => _strokeWidth = v)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
-  }
-
-  Widget _outlineText(String text) {
-    return Stack(children: [
-      Text(text, style: TextStyle(fontSize: _fontSize, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = _strokeWidth..color = Color.fromARGB(255, _sr.toInt(), _sg.toInt(), _sb.toInt()))),
-      Text(text, style: TextStyle(fontSize: _fontSize, fontWeight: FontWeight.w900, color: Color.fromARGB(255, _tr.toInt(), _tg.toInt(), _tb.toInt()))),
-    ]);
   }
 }
