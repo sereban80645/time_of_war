@@ -1,3 +1,4 @@
+import 'package:home_widget/home_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:async';
@@ -224,6 +225,25 @@ class _TimeOfWarState extends State<TimeOfWar> {
           ),
         ],
       ),
+    );
+  }
+
+  void _updateHomeWidget() {
+    DateTime now = DateTime.now();
+    DateTime date2022 = DateTime(2022, 2, 24, 5, 0);
+    DateTime date2014 = DateTime(2014, 2, 20, 0, 0);
+    
+    Duration diff2022 = now.difference(date2022);
+    Duration diff2014 = now.difference(date2014);
+    
+    String txt2022 = "${diff2022.inDays}д ${diff2022.inHours % 24}г ${diff2022.inMinutes % 60}хв ${diff2022.inSeconds % 60}с";
+    String txt14 = "${diff2014.inDays}д ${diff2014.inHours % 24}г ${diff2014.inMinutes % 60}хв ${diff2014.inSeconds % 60}с";
+    
+    HomeWidget.saveWidgetData('timer_2022', txt2022);
+    HomeWidget.saveWidgetData('timer_2014', txt14);
+    HomeWidget.updateWidget(
+      name: 'TimerWidgetProvider',
+      androidName: 'TimerWidgetProvider',
     );
   }
 }
