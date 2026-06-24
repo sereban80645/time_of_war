@@ -29,6 +29,7 @@ class _TimeOfWarState extends State<TimeOfWar> {
     super.initState();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {});
+      _updateHomeWidget();
     });
   }
 
