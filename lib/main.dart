@@ -230,25 +230,119 @@ class _TimeOfWarState extends State<TimeOfWar> {
   }
 
   void _updateHomeWidget() async {
-    String txt2022 = "";
-    if (_show2022) {
-      txt2022 = calculateTimeDifference(DateTime(2022, 2, 24, 5, 0));
-    } else {
-      txt2022 = "Вимкнено";
+    DateTime now = DateTime.now();
+    DateTime date2022 = DateTime(2022, 2, 24, 5, 0);
+    DateTime date2014 = DateTime(2014, 2, 20, 0, 0);
+
+    String formatTimeDiff(DateTime startDate) {
+      int years = now.year - startDate.year;
+      int months = now.month - startDate.month;
+      int days = now.day - startDate.day;
+      int hours = now.hour - startDate.hour;
+
+      if (hours < 0) { hours += 24; days--; }
+      if (days < 0) {
+        DateTime prevMonth = DateTime(now.year, now.month, 0);
+        days += prevMonth.day;
+        months--;
+      }
+      if (months < 0) { months += 12; years--; }
+
+      String res = "${years}р. ${months}міс. ${days}д.";
+      if (_showHour) res += " ${hours}г.";
+      return res;
     }
 
-    String txt14 = "";
-    if (_show2014) {
-      txt14 = calculateTimeDifference(DateTime(2014, 2, 20, 0, 0));
-    } else {
-      txt14 = "Вимкнено";
-    }
+    String txt2022 = _show2022 ? "Повномасштабна війна:\n" + formatTimeDiff(date2022) : "";
+    String txt2014 = _show2014 ? "Війна з 2014 року:\n" + formatTimeDiff(date2014) : "";
 
-    await HomeWidget.saveWidgetData<String>('timer_2022', txt2022);
-    await HomeWidget.saveWidgetData<String>('timer_2014', txt14);
-    await HomeWidget.updateWidget(
-      name: 'TimerWidgetProvider',
-      androidName: 'TimerWidgetProvider',
+    final widget = Container(
+      width: 320,
+      height: 150,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Color.fromRGBO(_br.toInt(), _bg.toInt(), _bb.toInt(), _opacity),
+        borderRadius: BorderRadius.circular(16),
+        image: _bgFile != null ? DecorationImage(
+          image: FileImage(_bgFile!),
+          fit: BoxFit.cover,
+        ) : null,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (_show2022) ...[
+            Stack(
+              children: [
+                Text(
+                  txt2022,
+                  style: TextStyle(
+                    fontSize: _fontSize * 0.55,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: null == null ? null : null.toString(),
+                    foreground: Paint()
+                      ..style = PaintingStyle.stroke
+                      ..strokeWidth = _strokeWidth
+                      ..color = Colors.black,
+                  ),
+                ),
+                Text(
+                  txt2022,
+                  style: TextStyle(
+                    fontSize: _fontSize * 0.55,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: null == null ? null : null.toString(),
+                    color: Color.fromRGBO(255.toInt(), 255.toInt(), 255.toInt(), 1.0),
+                  ),
+                ),
+              ],
+            ),
+            if (_show2014) const SizedBox(height: 8),
+          ],
+          if (_show2014) ...[
+            Stack(
+              children: [
+                Text(
+                  txt2014,
+                  style: TextStyle(
+                    fontSize: _fontSize * 0.55,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: null == null ? null : null.toString(),
+                    foreground: Paint()
+                      ..style = PaintingStyle.stroke
+                      ..strokeWidth = _strokeWidth
+                      ..color = Colors.black,
+                    ),
+                ),
+                Text(
+                  txt2014,
+                  style: TextStyle(
+                    fontSize: _fontSize * 0.55,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: null == null ? null : null.toString(),
+                    color: Color.fromRGBO(255.toInt(), 255.toInt(), 255.toInt(), 1.0),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
+
+    try {
+      await HomeWidget.renderFlutterToImage(
+        widget: widget,
+        key: 'widget_image',
+        logicalSize: const Size(320, 150),
+      );
+      await HomeWidget.updateWidget(
+        name: 'TimerWidgetProvider',
+        androidName: 'TimerWidgetProvider',
+      );
+    } catch (e) {
+      print("Помилка рендеру віджета: \$e");
+    }
   }
 }
