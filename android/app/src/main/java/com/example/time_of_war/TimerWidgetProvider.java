@@ -12,13 +12,13 @@ public class TimerWidgetProvider extends HomeWidgetProvider {
         for (int appWidgetId : appWidgetIds) {
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
             
-            String txt2022 = widgetData.getString("timer_2022", "Обчислення...");
-            String txt2014 = widgetData.getString("timer_2014", "Обчислення...");
+            String timer2022 = widgetData.getString("timer_2022", "---");
+            String timer2014 = widgetData.getString("timer_2014", "---");
             
-            // Правильно екрановані перенесення рядків
-            views.setTextViewText(R.id.timer_text_2022, "Вторгнення 2022:\n" + txt2022);
-            views.setTextViewText(R.id.timer_text_2014, "Війна 2014:\n" + txt2014);
-
+            // Використовуємо \n для безпечного переносу рядка в Java
+            views.setTextViewText(R.id.timer_text_2022, "Повномасштабна війна:\n" + timer2022);
+            views.setTextViewText(R.id.timer_text_2014, "Війна з 2014 року:\n" + timer2014);
+            
             appWidgetManager.updateAppWidget(appWidgetId, views);
         }
     }
