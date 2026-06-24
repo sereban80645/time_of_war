@@ -25,41 +25,37 @@ class _TimeOfWarState extends State<TimeOfWar> {
   late Timer _timer;
 
   @override
+  @override
   void initState() {
     super.initState();
+    _loadSavedSettings();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {});
       _updateHomeWidget();
     });
   }
 
-  String calculateTimeDifference(DateTime startDate) {
-    DateTime now = DateTime.now();
-    int years = now.year - startDate.year;
-    int months = now.month - startDate.month;
-    int days = now.day - startDate.day;
-    int hours = now.hour - startDate.hour;
-
-    if (hours < 0) {
-      hours += 24;
-      days--;
-    }
-    if (days < 0) {
-      var prevMonth = DateTime(now.year, now.month, 0);
-      days += prevMonth.day;
-      months--;
-    }
-    if (months < 0) {
-      months += 12;
-      years--;
-    }
-
-    if (_showHour) {
-      return '$yearsр. $monthsміс. $daysд. $hoursг.';
-    } else {
-      return '$yearsр. $monthsміс. $daysд.';
-    }
+  Future<void> _loadSavedSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _show2022 = prefs.getBool('show2022') ?? true;
+      _show2014 = prefs.getBool('show2014') ?? false;
+      _showHour = prefs.getBool('showHour') ?? true;
+      _fontSize = prefs.getDouble('fontSize') ?? 35.0;
+      _strokeWidth = prefs.getDouble('strokeWidth') ?? 3.0;
+      _opacity = prefs.getDouble('opacity') ?? 0.5;
+      _br = prefs.getDouble('br') ?? 30.0;
+      _bg = prefs.getDouble('bg') ?? 30.0;
+      _bb = prefs.getDouble('bb') ?? 30.0;
+      _tr = prefs.getDouble('tr') ?? 255.0;
+      _tg = prefs.getDouble('tg') ?? 255.0;
+      _tb = prefs.getDouble('tb') ?? 255.0;
+      _sr = prefs.getDouble('sr') ?? 0.0;
+      _sg = prefs.getDouble('sg') ?? 0.0;
+      _sb = prefs.getDouble('sb') ?? 0.0;
+    });
   }
+
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -90,7 +86,10 @@ class _TimeOfWarState extends State<TimeOfWar> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: Stack(
+      body: SingleChildScrollView(
+        child: Stack(
+          alignment: Alignment.topCenter,
+          clipBehavior: Clip.none,
         children: [
           if (_bgFile != null)
             Positioned.fill(
