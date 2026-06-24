@@ -332,8 +332,8 @@ class _TimeOfWarState extends State<TimeOfWar> {
     );
 
     try {
-      await HomeWidget.renderFlutterToImage(
-        widget: widget,
+      await HomeWidget.renderFlutterWidget(
+        widget,
         key: 'widget_image',
         logicalSize: const Size(320, 150),
       );
