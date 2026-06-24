@@ -239,11 +239,8 @@ class _TimeOfWarState extends State<TimeOfWar> {
     String txt2022 = "${diff2022.inDays}д ${diff2022.inHours % 24}г ${diff2022.inMinutes % 60}хв ${diff2022.inSeconds % 60}с";
     String txt14 = "${diff2014.inDays}д ${diff2014.inHours % 24}г ${diff2014.inMinutes % 60}хв ${diff2014.inSeconds % 60}с";
     
-    HomeWidget.saveWidgetData('timer_2022', txt2022);
-    HomeWidget.saveWidgetData('timer_2014', txt14);
-    HomeWidget.updateWidget(
-      name: 'TimerWidgetProvider',
-      androidName: 'TimerWidgetProvider',
-    );
+    HomeWidget.saveWidgetData("timer_2022", txt2022);
+    HomeWidget.saveWidgetData("timer_2014", txt14);
+    HomeWidget.updateWidget(name: "TimerWidgetProvider", androidName: "TimerWidgetProvider");
   }
 }
