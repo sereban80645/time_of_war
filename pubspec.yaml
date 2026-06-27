@@ -5,6 +5,7 @@ version: 1.0.0+1
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
+  shared_preferences: ^2.2.3
   home_widget: any
   flutter:
     sdk: flutter
