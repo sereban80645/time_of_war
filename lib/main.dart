@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-import 'dart:async';
 import 'dart:io';
+import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,49 +11,49 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+  const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Час Війни',
-      theme: ThemeData.dark(),
-      home: const HomeScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF121212),
+      ),
+      home: const TimeOfWarScreen(),
     );
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-
+class TimeOfWarScreen extends StatefulWidget {
+  const TimeOfWarScreen({Key? key}) : super(key: key);
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<TimeOfWarScreen> createState() => _TimeOfWarScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
   bool _show2022 = true;
   bool _show2014 = false;
   bool _showHour = true;
-  double _opacity = 0.5;
-  double _fontSize = 24.0;
-  
-  // Кольори тексту (RGB)
-  double _tr = 255.0, _tg = 255.0, _tb = 255.0;
-  // Кольори фону (RGB)
-  double _br = 30.0, _bg = 30.0, _bb = 30.0;
-  // Кольори контуру (RGB)
-  double _sr = 0.0, _sg = 0.0, _sb = 0.0;
+  double _fontSize = 22.0;
   double _strokeWidth = 3.0;
+  double _opacity = 0.5;
 
-  File? _bgFile;
+  // RGB Background
+  double _br = 30.0, _bg = 30.0, _bb = 30.0;
+  // RGB Text
+  double _tr = 255.0, _tg = 255.0, _tb = 255.0;
+  // RGB Stroke
+  double _sr = 0.0, _sg = 0.0, _sb = 0.0;
+
+  String? _imagePath;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _loadSavedSettings();
+    _loadSettings();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {});
+      if (mounted) setState(() {});
     });
   }
 
@@ -63,28 +63,25 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  Future<void> _loadSavedSettings() async {
+  Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _show2022 = prefs.getBool('show2022') ?? true;
       _show2014 = prefs.getBool('show2014') ?? false;
       _showHour = prefs.getBool('showHour') ?? true;
+      _fontSize = prefs.getDouble('fontSize') ?? 22.0;
+      _strokeWidth = prefs.getDouble('strokeWidth') ?? 3.0;
       _opacity = prefs.getDouble('opacity') ?? 0.5;
-      _fontSize = prefs.getDouble('fontSize') ?? 24.0;
-      _tr = prefs.getDouble('tr') ?? 255.0;
-      _tg = prefs.getDouble('tg') ?? 255.0;
-      _tb = prefs.getDouble('tb') ?? 255.0;
       _br = prefs.getDouble('br') ?? 30.0;
       _bg = prefs.getDouble('bg') ?? 30.0;
       _bb = prefs.getDouble('bb') ?? 30.0;
+      _tr = prefs.getDouble('tr') ?? 255.0;
+      _tg = prefs.getDouble('tg') ?? 255.0;
+      _tb = prefs.getDouble('tb') ?? 255.0;
       _sr = prefs.getDouble('sr') ?? 0.0;
       _sg = prefs.getDouble('sg') ?? 0.0;
       _sb = prefs.getDouble('sb') ?? 0.0;
-      _strokeWidth = prefs.getDouble('strokeWidth') ?? 3.0;
-      final path = prefs.getString('bgFilePath');
-      if (path != null && path.isNotEmpty) {
-        _bgFile = File(path);
-      }
+      _imagePath = prefs.getString('imagePath');
     });
   }
 
@@ -96,18 +93,31 @@ class _HomeScreenState extends State<HomeScreen> {
     _updateHomeWidget();
   }
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _bgFile = File(pickedFile.path);
-      });
-      await _saveSetting('bgFilePath', pickedFile.path);
+  Future<void> _updateHomeWidget() async {
+    try {
+      await HomeWidget.saveWidgetData<bool>('show2022', _show2022);
+      await HomeWidget.saveWidgetData<bool>('show2014', _show2014);
+      await HomeWidget.saveWidgetData<bool>('showHour', _showHour);
+      await HomeWidget.saveWidgetData<double>('fontSize', _fontSize);
+      await HomeWidget.saveWidgetData<double>('strokeWidth', _strokeWidth);
+      await HomeWidget.saveWidgetData<double>('opacity', _opacity);
+      
+      final bgHex = Color.fromRGBO(_br.toInt(), _bg.toInt(), _bb.toInt(), _opacity).value;
+      final textHex = Color.fromRGBO(_tr.toInt(), _tg.toInt(), _tb.toInt(), 1.0).value;
+      final strokeHex = Color.fromRGBO(_sr.toInt(), _sg.toInt(), _sb.toInt(), 1.0).value;
+      
+      await HomeWidget.saveWidgetData<int>('bgColor', bgHex);
+      await HomeWidget.saveWidgetData<int>('textColor', textHex);
+      await HomeWidget.saveWidgetData<int>('strokeColor', strokeHex);
+      if (_imagePath != null) await HomeWidget.saveWidgetData<String>('imagePath', _imagePath);
+
+      await HomeWidget.updateWidget(name: 'WidgetProvider');
+    } catch (e) {
+      debugPrint("HomeWidget Error: $e");
     }
   }
 
-  Map<String, int> _calculateTime(DateTime startDate) {
+  String _calculateTimeDifference(DateTime startDate) {
     final now = DateTime.now();
     int years = now.year - startDate.year;
     int months = now.month - startDate.month;
@@ -115,295 +125,314 @@ class _HomeScreenState extends State<HomeScreen> {
     int hours = now.hour - startDate.hour;
 
     if (hours < 0) {
-      hours += 24;
       days--;
+      hours += 24;
     }
     if (days < 0) {
-      final prevMonth = now.month - 1 == 0 ? 12 : now.month - 1;
-      final prevYear = now.month - 1 == 0 ? now.year - 1 : now.year;
-      final daysInPrevMonth = DateTime(prevYear, prevMonth + 1, 0).day;
-      days += daysInPrevMonth;
       months--;
+      final prevMonth = DateTime(now.year, now.month, 0);
+      days += prevMonth.day;
     }
     if (months < 0) {
-      months += 12;
       years--;
+      months += 12;
     }
-    return {'years': years, 'months': months, 'days': days, 'hours': hours};
+
+    String output = "${years}р. ${months}міс. ${days}д.";
+    if (_showHour) {
+      output += " ${hours}г.";
+    }
+    return output;
   }
 
-  Future<void> _updateHomeWidget() async {
-    String widgetText = "";
-    if (_show2022) {
-      final t = _calculateTime(DateTime(2022, 2, 24));
-      widgetText += "Повномасштабна війна:\n${t['years']}р. ${t['months']}міс. ${t['days']}д.";
-      if (_showHour) widgetText += " ${t['hours']}г.";
-    }
-    if (_show2014) {
-      if (widgetText.isNotEmpty) widgetText += "\n\n";
-      final t = _calculateTime(DateTime(2014, 2, 20));
-      widgetText += "Війна з 2014 року:\n${t['years']}р. ${t['months']}міс. ${t['days']}д.";
-      if (_showHour) widgetText += " ${t['hours']}г.";
-    }
+  Widget _buildOutlinedText(String text) {
+    final textColor = Color.fromRGBO(_tr.toInt(), _tg.toInt(), _tb.toInt(), 1.0);
+    final strokeColor = Color.fromRGBO(_sr.toInt(), _sg.toInt(), _sb.toInt(), 1.0);
 
-    await HomeWidget.saveWidgetData<String>('widget_text', widgetText);
-    await HomeWidget.updateWidget(
-      name: 'HomeWidgetProvider',
-      androidName: 'HomeWidgetProvider',
+    return Stack(
+      children: [
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: _fontSize,
+            fontWeight: FontWeight.bold,
+            foreground: Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = _strokeWidth
+              ..color = strokeColor,
+          ),
+        ),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: _fontSize,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+        ),
+      ],
     );
+  }
+
+  Widget _buildWidgetPreview() {
+    final bgColor = Color.fromRGBO(_br.toInt(), _bg.toInt(), _bb.toInt(), _opacity);
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Прев'ю віджета на робочому столі:", style: TextStyle(color: Colors.grey, fontSize: 12)),
+          const SizedBox(height: 6),
+          Container(
+            height: 160,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              color: _imagePath == null ? bgColor : null,
+              image: _imagePath != null
+                  ? DecorationImage(
+                      image: FileImage(File(_imagePath!)),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+              border: Border.all(color: Colors.white10, width: 1),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(28),
+                color: _imagePath != null ? bgColor : null,
+              ),
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (_show2022) ...[
+                    const Text("Повномасштабна війна:", style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+                    _buildOutlinedText(_calculateTimeDifference(DateTime(2022, 2, 24))),
+                  ],
+                  if (_show2014) ...[
+                    if (_show2022) const SizedBox(height: 10),
+                    const Text("Війна з 2014 року:", style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+                    _buildOutlinedText(_calculateTimeDifference(DateTime(2014, 4, 6))),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imagePath = pickedFile.path;
+      });
+      _saveSetting('imagePath', pickedFile.path);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = Color.fromRGBO(_br.toInt(), _bg.toInt(), _bb.toInt(), 1);
-    final textColor = Color.fromRGBO(_tr.toInt(), _tg.toInt(), _tb.toInt(), 1);
-    final strokeColor = Color.fromRGBO(_sr.toInt(), _sg.toInt(), _sb.toInt(), 1);
-
-    String previewText = "";
-    if (_show2022) {
-      final t = _calculateTime(DateTime(2022, 2, 24));
-      previewText += "Повномасштабна війна:\n${t['years']}р. ${t['months']}міс. ${t['days']}д.";
-      if (_showHour) previewText += " ${t['hours']}г.";
-    }
-    if (_show2014) {
-      if (previewText.isNotEmpty) previewText += "\n\n";
-      final t = _calculateTime(DateTime(2014, 2, 20));
-      previewText += "Війна з 2014 року:\n${t['years']}р. ${t['months']}міс. ${t['days']}д.";
-      if (_showHour) previewText += " ${t['hours']}г.";
-    }
-
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Час Війни"),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          bottom: const TabBar(
+            indicatorColor: Colors.deepPurpleAccent,
+            tabs: [
+              Tab(text: "Головне"),
+              Tab(text: "Кольори"),
+              Tab(text: "Контур"),
+            ],
+          ),
+        ),
+        body: Column(
           children: [
-            // Верхня робоча зона прев'ю (завжди відкрита)
-            Positioned.fill(
-              bottom: 400, // Фіксований відступ знизу для панелі
+            _buildWidgetPreview(),
+            Expanded(
               child: Container(
-                color: bgColor,
-                child: Stack(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E1E1E),
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+                ),
+                child: TabBarView(
                   children: [
-                    if (_bgFile != null && _bgFile!.existsSync())
-                      Positioned.fill(
-                        child: Opacity(
-                          opacity: _opacity,
-                          child: Image.file(_bgFile!, fit: BoxFit.cover),
-                        ),
-                      ),
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Stack(
-                          children: [
-                            // Контур тексту
-                            Text(
-                              previewText,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: _fontSize,
-                                fontWeight: FontWeight.bold,
-                                foreground: Paint()
-                                  ..style = PaintingStyle.stroke
-                                  ..strokeWidth = _strokeWidth
-                                  ..color = strokeColor,
-                              ),
-                            ),
-                            // Основний текст
-                            Text(
-                              previewText,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: _fontSize,
-                                fontWeight: FontWeight.bold,
-                                color: textColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    _buildMainTab(),
+                    _buildColorsTab(),
+                    _buildContourTab(),
                   ],
-                ),
-              ),
-            ),
-            
-            // Нижня фіксована панель налаштувань (виправлено перекриття)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: 400, // Чіткі межі, меню більше не розтягується на весь екран
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[900],
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                child: DefaultTabController(
-                  length: 3,
-                  child: Column(
-                    children: [
-                      const TabBar(
-                        indicatorColor: Colors.deepPurpleAccent,
-                        tabs: [
-                          Tab(text: "Головне"),
-                          Tab(text: "Кольори"),
-                          Tab(text: "Контур"),
-                        ],
-                      ),
-                      Expanded(
-                        child: TabBarView(
-                          children: [
-                            // Вкладка 1: Головне
-                            ListView(
-                              padding: const EdgeInsets.all(12),
-                              children: [
-                                SwitchListTile(
-                                  title: const Text("Війна 2022"),
-                                  value: _show2022,
-                                  onChanged: (val) {
-                                    setState(() => _show2022 = val);
-                                    _saveSetting('show2022', val);
-                                  },
-                                ),
-                                SwitchListTile(
-                                  title: const Text("Війна 2014"),
-                                  value: _show2014,
-                                  onChanged: (val) {
-                                    setState(() => _show2014 = val);
-                                    _saveSetting('show2014', val);
-                                  },
-                                ),
-                                SwitchListTile(
-                                  title: const Text("Показ годин"),
-                                  value: _showHour,
-                                  onChanged: (val) {
-                                    setState(() => _showHour = val);
-                                    _saveSetting('showHour', val);
-                                  },
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                                  child: Text("Прозорість фону", style: TextStyle(color: Colors.grey)),
-                                ),
-                                Slider(
-                                  value: _opacity,
-                                  min: 0.0,
-                                  max: 1.0,
-                                  onChanged: (val) {
-                                    setState(() => _opacity = val);
-                                    _saveSetting('opacity', val);
-                                  },
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                                  child: Text("Розмір тексту", style: TextStyle(color: Colors.grey)),
-                                ),
-                                Slider(
-                                  value: _fontSize,
-                                  min: 12.0,
-                                  max: 60.0,
-                                  onChanged: (val) {
-                                    setState(() => _fontSize = val);
-                                    _saveSetting('fontSize', val);
-                                  },
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: ElevatedButton.icon(
-                                    onPressed: _pickImage,
-                                    style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
-                                    icon: const Icon(Icons.image, color: Colors.white),
-                                    label: const Text("Вибрати ФОТО з галереї", style: TextStyle(color: Colors.white)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            
-                            // Вкладка 2: Кольори
-                            ListView(
-                              padding: const EdgeInsets.all(12),
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text("Колір тексту (RGB)", style: TextStyle(fontWeight: FontWeight.bold)),
-                                ),
-                                Slider(
-                                  value: _tr, min: 0, max: 255, activeColor: Colors.red,
-                                  onChanged: (val) { setState(() => _tr = val); _saveSetting('tr', val); },
-                                ),
-                                Slider(
-                                  value: _tg, min: 0, max: 255, activeColor: Colors.green,
-                                  onChanged: (val) { setState(() => _tg = val); _saveSetting('tg', val); },
-                                ),
-                                Slider(
-                                  value: _tb, min: 0, max: 255, activeColor: Colors.blue,
-                                  onChanged: (val) { setState(() => _tb = val); _saveSetting('tb', val); },
-                                ),
-                                const Divider(),
-                                const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text("Колір фону (RGB)", style: TextStyle(fontWeight: FontWeight.bold)),
-                                ),
-                                Slider(
-                                  value: _br, min: 0, max: 255, activeColor: Colors.redAccent,
-                                  onChanged: (val) { setState(() => _br = val); _saveSetting('br', val); },
-                                ),
-                                Slider(
-                                  value: _bg, min: 0, max: 255, activeColor: Colors.greenAccent,
-                                  onChanged: (val) { setState(() => _bg = val); _saveSetting('bg', val); },
-                                ),
-                                Slider(
-                                  value: _bb, min: 0, max: 255, activeColor: Colors.blueAccent,
-                                  onChanged: (val) { setState(() => _bb = val); _saveSetting('bb', val); },
-                                ),
-                              ],
-                            ),
-                            
-                            // Вкладка 3: Контур
-                            ListView(
-                              padding: const EdgeInsets.all(12),
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text("Товщина контуру", style: TextStyle(fontWeight: FontWeight.bold)),
-                                ),
-                                Slider(
-                                  value: _strokeWidth, min: 0.0, max: 10.0,
-                                  onChanged: (val) { setState(() => _strokeWidth = val); _saveSetting('strokeWidth', val); },
-                                ),
-                                const Divider(),
-                                const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text("Колір контуру (RGB)", style: TextStyle(fontWeight: FontWeight.bold)),
-                                ),
-                                Slider(
-                                  value: _sr, min: 0, max: 255, activeColor: Colors.red,
-                                  onChanged: (val) { setState(() => _sr = val); _saveSetting('sr', val); },
-                                ),
-                                Slider(
-                                  value: _sg, min: 0, max: 255, activeColor: Colors.green,
-                                  onChanged: (val) { setState(() => _sg = val); _saveSetting('sg', val); },
-                                ),
-                                Slider(
-                                  value: _sb, min: 0, max: 255, activeColor: Colors.blue,
-                                  onChanged: (val) { setState(() => _sb = val); _saveSetting('sb', val); },
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMainTab() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        SwitchListTile(
+          title: const Text("Війна 2022"),
+          value: _show2022,
+          activeColor: Colors.deepPurpleAccent,
+          onChanged: (v) {
+            setState(() => _show2022 = v);
+            _saveSetting('show2022', v);
+          },
+        ),
+        SwitchListTile(
+          title: const Text("Війна 2014"),
+          value: _show2014,
+          activeColor: Colors.deepPurpleAccent,
+          onChanged: (v) {
+            setState(() => _show2014 = v);
+            _saveSetting('show2014', v);
+          },
+        ),
+        SwitchListTile(
+          title: const Text("Показ годин"),
+          value: _showHour,
+          activeColor: Colors.deepPurpleAccent,
+          onChanged: (v) {
+            setState(() => _showHour = v);
+            _saveSetting('showHour', v);
+          },
+        ),
+        const Divider(color: Colors.white10),
+        const Text("Прозорість фону", style: TextStyle(fontSize: 14)),
+        Slider(
+          value: _opacity,
+          min: 0.0,
+          max: 1.0,
+          activeColor: Colors.deepPurpleAccent,
+          onChanged: (v) {
+            setState(() => _opacity = v);
+            _saveSetting('opacity', v);
+          },
+        ),
+        const Text("Розмір тексту", style: TextStyle(fontSize: 14)),
+        Slider(
+          value: _fontSize,
+          min: 12.0,
+          max: 40.0,
+          activeColor: Colors.deepPurpleAccent,
+          onChanged: (v) {
+            setState(() => _fontSize = v);
+            _saveSetting('fontSize', v);
+          },
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton.icon(
+          onPressed: _pickImage,
+          icon: const Icon(Icons.image),
+          label: const Text("Вибрати ФОТО з галереї"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF2D2D2D),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildColorsTab() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        const Text("Колір тексту (RGB)", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent)),
+        const SizedBox(height: 8),
+        _buildRGBSliders(_tr, _tg, _tb, (r, g, b) {
+          setState(() { _tr = r; _tg = g; _tb = b; });
+          _saveSetting('tr', r); _saveSetting('tg', g); _saveSetting('tb', b);
+        }),
+        const Divider(color: Colors.white10, height: 32),
+        const Text("Колір фону (RGB)", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent)),
+        const SizedBox(height: 8),
+        _buildRGBSliders(_br, _bg, _bb, (r, g, b) {
+          setState(() { _br = r; _bg = g; _bb = b; });
+          _saveSetting('br', r); _saveSetting('bg', g); _saveSetting('bb', b);
+        }),
+      ],
+    );
+  }
+
+  Widget _buildContourTab() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        const Text("Колір контуру (RGB)", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent)),
+        const SizedBox(height: 8),
+        _buildRGBSliders(_sr, _sg, _sb, (r, g, b) {
+          setState(() { _sr = r; _sg = g; _sb = b; });
+          _saveSetting('sr', r); _saveSetting('sg', g); _saveSetting('sb', b);
+        }),
+        const Divider(color: Colors.white10, height: 32),
+        const Text("Товщина контуру", style: TextStyle(fontSize: 14)),
+        Slider(
+          value: _strokeWidth,
+          min: 0.0,
+          max: 8.0,
+          activeColor: Colors.deepPurpleAccent,
+          onChanged: (v) {
+            setState(() => _strokeWidth = v);
+            _saveSetting('strokeWidth', v);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRGBSliders(double r, double g, double b, Function(double, double, double) onChanged) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            const SizedBox(width: 20, child: Text("R", style: TextStyle(color: Colors.red))),
+            Expanded(
+              child: Slider(
+                value: r, min: 0, max: 255,
+                activeColor: Colors.red,
+                onChanged: (v) => onChanged(v, g, b),
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            const SizedBox(width: 20, child: Text("G", style: TextStyle(color: Colors.green))),
+            Expanded(
+              child: Slider(
+                value: g, min: 0, max: 255,
+                activeColor: Colors.green,
+                onChanged: (v) => onChanged(r, v, b),
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            const SizedBox(width: 20, child: Text("B", style: TextStyle(color: Colors.blue))),
+            Expanded(
+              child: Slider(
+                value: b, min: 0, max: 255,
+                activeColor: Colors.blue,
+                onChanged: (v) => onChanged(r, g, v),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
