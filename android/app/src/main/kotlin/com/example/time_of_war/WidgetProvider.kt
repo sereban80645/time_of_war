@@ -3,27 +3,26 @@ package com.example.time_of_war
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.BitmapFactory
-import android.view.View
 import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetProvider
+import android.content.Intent
+import android.app.PendingIntent
 
 class WidgetProvider : HomeWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray, widgetData: SharedPreferences) {
-        appWidgetIds.forEach { widgetId ->
+        // Спочатку віддаємо плагіну підвантажити картинку
+        super.onUpdate(context, appWidgetManager, appWidgetIds, widgetData)
+        
+        // Потім додаємо залізне правило: клік відкриває програму
+        for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout)
-            val imagePath = widgetData.getString("widget_image", null)
+            val intent = Intent(context, MainActivity::class.java)
+            val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             
-            if (imagePath != null) {
-                val bitmap = BitmapFactory.decodeFile(imagePath)
-                if (bitmap != null) {
-                    views.setImageViewBitmap(R.id.widget_image, bitmap)
-                    views.setViewVisibility(R.id.widget_image, View.VISIBLE)
-                } else {
-                    views.setViewVisibility(R.id.widget_image, View.GONE)
-                }
-            }
-            appWidgetManager.updateAppWidget(widgetId, views)
+            views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_image, pendingIntent)
+            
+            appWidgetManager.updateAppWidget(appWidgetId, views)
         }
     }
 }
