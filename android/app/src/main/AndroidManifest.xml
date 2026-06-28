@@ -1,5 +1,7 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.time_of_war">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" package="com.example.time_of_war">
     <application
+        tools:replace="android:name"
         android:label="time_of_war"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
