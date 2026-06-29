@@ -141,6 +141,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
   String? _imagePath;
   Timer? _timer;
+  Timer? _debounce; // Запобіжник частих оновлень
 
   @override
   void initState() {
@@ -151,7 +152,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
         setState(() {});
         // Оновлюємо сам віджет раз на хвилину (щоб не витрачати батарею)
         if (DateTime.now().second == 0) {
-          _updateHomeWidget();
+          _debouncedUpdate();
         }
       }
     });
@@ -160,7 +161,16 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _debounce?.cancel();
     super.dispose();
+  }
+
+  // Метод, який чекає 0.5 сек перед важким рендером
+  void _debouncedUpdate() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _updateHomeWidget();
+    });
   }
 
   Future<void> _loadSettings() async {
@@ -191,7 +201,9 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     if (value is bool) await prefs.setBool(key, value);
     if (value is double) await prefs.setDouble(key, value);
     if (value is String) await prefs.setString(key, value);
-    _updateHomeWidget();
+    
+    // Викликаємо оптимізоване оновлення замість прямого
+    _debouncedUpdate(); 
   }
 
   Future<void> _updateHomeWidget() async {
@@ -203,14 +215,13 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
       final time2022 = _calculateTimeDifference(DateTime(2022, 2, 24));
       final time2014 = _calculateTimeDifference(DateTime(2014, 4, 6));
 
-      // Рендеримо Flutter UI як картинку для нативного віджета
       await HomeWidget.renderFlutterWidget(
         TimeOfWarWidgetRender(
           show2022: _show2022,
           show2014: _show2014,
           time2022: time2022,
           time2014: time2014,
-          fontSize: _fontSize * 2.5, // Масштабування для високої роздільної здатності
+          fontSize: _fontSize * 2.5,
           strokeWidth: _strokeWidth * 2.5,
           opacity: _opacity,
           bgColor: bgColor,
