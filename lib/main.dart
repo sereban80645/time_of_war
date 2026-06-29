@@ -131,6 +131,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
   bool _show2022 = true;
   bool _show2014 = false;
   bool _showHour = true;
+  bool _showDaysOnly = false; // Нова змінна для обліку в днях
   double _fontSize = 22.0;
   double _strokeWidth = 3.0;
   double _opacity = 0.5;
@@ -143,9 +144,8 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
   Timer? _timer;
   Timer? _debounce;
 
-  // Крапки відліку за вашим запитом
-  final DateTime _date2022Start = DateTime(2022, 2, 24, 5, 0); // Повномасштабна з 05:00 ранку
-  final DateTime _date2014Start = DateTime(2014, 2, 20, 0, 0); // Війна 2014 з 20 лютого
+  final DateTime _date2022Start = DateTime(2022, 2, 24, 5, 0); 
+  final DateTime _date2014Start = DateTime(2014, 2, 20, 0, 0); 
 
   @override
   void initState() {
@@ -181,6 +181,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
       _show2022 = prefs.getBool('show2022') ?? true;
       _show2014 = prefs.getBool('show2014') ?? false;
       _showHour = prefs.getBool('showHour') ?? true;
+      _showDaysOnly = prefs.getBool('showDaysOnly') ?? false;
       _fontSize = prefs.getDouble('fontSize') ?? 22.0;
       _strokeWidth = prefs.getDouble('strokeWidth') ?? 3.0;
       _opacity = prefs.getDouble('opacity') ?? 0.5;
@@ -249,28 +250,45 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
   String _calculateTimeDifference(DateTime startDate) {
     final now = DateTime.now();
-    int years = now.year - startDate.year;
-    int months = now.month - startDate.month;
-    int days = now.day - startDate.day;
-    int hours = now.hour - startDate.hour;
 
-    if (hours < 0) {
-      days--;
-      hours += 24;
-    }
-    if (days < 0) {
-      months--;
-      final prevMonth = DateTime(now.year, now.month, 0);
-      days += prevMonth.day;
-    }
-    if (months < 0) {
-      years--;
-      months += 12;
-    }
+    if (_showDaysOnly) {
+      // Чесний підрахунок різниці виключно в днях за календарем
+      final difference = now.difference(startDate);
+      int totalDays = difference.inDays;
+      int hours = now.hour - startDate.hour;
 
-    String output = "${years}р. ${months}міс. ${days}д.";
-    if (_showHour) output += " ${hours}г.";
-    return output;
+      if (hours < 0) {
+        hours += 24;
+      }
+
+      String output = "${totalDays}д.";
+      if (_showHour) output += " ${hours}г.";
+      return output;
+    } else {
+      // Стандартний календарний підрахунок (Роки, Місяці, Дні)
+      int years = now.year - startDate.year;
+      int months = now.month - startDate.month;
+      int days = now.day - startDate.day;
+      int hours = now.hour - startDate.hour;
+
+      if (hours < 0) {
+        days--;
+        hours += 24;
+      }
+      if (days < 0) {
+        months--;
+        final prevMonth = DateTime(now.year, now.month, 0);
+        days += prevMonth.day;
+      }
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+
+      String output = "${years}р. ${months}міс. ${days}д.";
+      if (_showHour) output += " ${hours}г.";
+      return output;
+    }
   }
 
   Widget _buildOutlinedText(String text) {
@@ -367,6 +385,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
         SwitchListTile(title: const Text("Війна 2022"), value: _show2022, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _show2022 = v); _saveSetting('show2022', v); }),
         SwitchListTile(title: const Text("Війна 2014"), value: _show2014, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _show2014 = v); _saveSetting('show2014', v); }),
         SwitchListTile(title: const Text("Показ годин"), value: _showHour, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _showHour = v); _saveSetting('showHour', v); }),
+        SwitchListTile(title: const Text("Облік в днях"), value: _showDaysOnly, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _showDaysOnly = v); _saveSetting('showDaysOnly', v); }),
         const Divider(color: Colors.white10),
         const Text("Прозорість фону", style: TextStyle(fontSize: 14)),
         Slider(value: _opacity, min: 0.0, max: 1.0, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _opacity = v); _saveSetting('opacity', v); }),
@@ -395,7 +414,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text("Колір контуру", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent)), const SizedBox(height: 8),
+        const Text("Колір...контуру", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent)), const SizedBox(height: 8),
         _buildRGBSliders(_sr, _sg, _sb, (r, g, b) { setState(() { _sr = r; _sg = g; _sb = b; }); _saveSetting('sr', r); _saveSetting('sg', g); _saveSetting('sb', b); }),
         const Divider(color: Colors.white10, height: 32),
         const Text("Товщина контуру", style: TextStyle(fontSize: 14)),
