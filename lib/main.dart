@@ -131,7 +131,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
   bool _show2022 = true;
   bool _show2014 = false;
   bool _showHour = true;
-  bool _showDaysOnly = false; // Нова змінна для обліку в днях
+  bool _showDaysOnly = false;
   double _fontSize = 22.0;
   double _strokeWidth = 3.0;
   double _opacity = 0.5;
@@ -252,20 +252,16 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     final now = DateTime.now();
 
     if (_showDaysOnly) {
-      // Чесний підрахунок різниці виключно в днях за календарем
       final difference = now.difference(startDate);
-      int totalDays = difference.inDays;
+      int totalDays = difference.inDays + 1; // +1 для поточного дня
       int hours = now.hour - startDate.hour;
-
-      if (hours < 0) {
-        hours += 24;
-      }
+      if (hours < 0) hours += 24;
 
       String output = "${totalDays}д.";
       if (_showHour) output += " ${hours}г.";
       return output;
     } else {
-      // Стандартний календарний підрахунок (Роки, Місяці, Дні)
+      // Поточний день, місяць, рік:
       int years = now.year - startDate.year;
       int months = now.month - startDate.month;
       int days = now.day - startDate.day;
@@ -284,6 +280,12 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
         years--;
         months += 12;
       }
+
+      // Додаємо +1 до кожного показника, щоб відображати "зараз іде"
+      // Логіка: +1 день, якщо день став 0, то місяць і т.д.
+      days += 1;
+      if (days > 30) { days -= 30; months += 1; }
+      if (months > 11) { months -= 12; years += 1; }
 
       String output = "${years}р. ${months}міс. ${days}д.";
       if (_showHour) output += " ${hours}г.";
@@ -309,7 +311,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Прев'ю віджета на робочому столі:", style: TextStyle(color: Colors.grey, fontSize: 12)),
+          const Text("Прев'ю віджета:", style: TextStyle(color: Colors.grey, fontSize: 12)),
           const SizedBox(height: 6),
           Container(
             width: double.infinity,
@@ -414,7 +416,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text("Колір...контуру", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent)), const SizedBox(height: 8),
+        const Text("Колір контуру", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent)), const SizedBox(height: 8),
         _buildRGBSliders(_sr, _sg, _sb, (r, g, b) { setState(() { _sr = r; _sg = g; _sb = b; }); _saveSetting('sr', r); _saveSetting('sg', g); _saveSetting('sb', b); }),
         const Divider(color: Colors.white10, height: 32),
         const Text("Товщина контуру", style: TextStyle(fontSize: 14)),
