@@ -83,7 +83,6 @@ class TimeOfWarWidgetRender extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 800,
-      height: 400,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(56),
         color: imagePath == null ? bgColor : null,
@@ -99,8 +98,9 @@ class TimeOfWarWidgetRender extends StatelessWidget {
           borderRadius: BorderRadius.circular(56),
           color: imagePath != null ? bgColor : null,
         ),
-        padding: const EdgeInsets.all(40.0),
+        padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 40.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -141,7 +141,11 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
   String? _imagePath;
   Timer? _timer;
-  Timer? _debounce; // Запобіжник частих оновлень
+  Timer? _debounce;
+
+  // Крапки відліку за вашим запитом
+  final DateTime _date2022Start = DateTime(2022, 2, 24, 5, 0); // Повномасштабна з 05:00 ранку
+  final DateTime _date2014Start = DateTime(2014, 2, 20, 0, 0); // Війна 2014 з 20 лютого
 
   @override
   void initState() {
@@ -150,7 +154,6 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {});
-        // Оновлюємо сам віджет раз на хвилину (щоб не витрачати батарею)
         if (DateTime.now().second == 0) {
           _debouncedUpdate();
         }
@@ -165,7 +168,6 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     super.dispose();
   }
 
-  // Метод, який чекає 0.5 сек перед важким рендером
   void _debouncedUpdate() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
@@ -202,7 +204,6 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     if (value is double) await prefs.setDouble(key, value);
     if (value is String) await prefs.setString(key, value);
     
-    // Викликаємо оптимізоване оновлення замість прямого
     _debouncedUpdate(); 
   }
 
@@ -212,8 +213,15 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
       final textColor = Color.fromRGBO(_tr.toInt(), _tg.toInt(), _tb.toInt(), 1.0);
       final strokeColor = Color.fromRGBO(_sr.toInt(), _sg.toInt(), _sb.toInt(), 1.0);
 
-      final time2022 = _calculateTimeDifference(DateTime(2022, 2, 24));
-      final time2014 = _calculateTimeDifference(DateTime(2014, 4, 6));
+      final time2022 = _calculateTimeDifference(_date2022Start);
+      final time2014 = _calculateTimeDifference(_date2014Start);
+
+      double dynamicHeight = 150.0; 
+      if (_show2022 && _show2014) {
+        dynamicHeight = 400.0;
+      } else if (_show2022 || _show2014) {
+        dynamicHeight = 240.0;
+      }
 
       await HomeWidget.renderFlutterWidget(
         TimeOfWarWidgetRender(
@@ -230,7 +238,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           imagePath: _imagePath,
         ),
         key: 'widget_image',
-        logicalSize: const Size(800, 400),
+        logicalSize: Size(800, dynamicHeight),
       );
 
       await HomeWidget.updateWidget(name: 'WidgetProvider', androidName: 'WidgetProvider');
@@ -286,7 +294,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           const Text("Прев'ю віджета на робочому столі:", style: TextStyle(color: Colors.grey, fontSize: 12)),
           const SizedBox(height: 6),
           Container(
-            height: 160, width: double.infinity,
+            width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),
               color: _imagePath == null ? bgColor : null,
@@ -295,19 +303,20 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
             ),
             child: Container(
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(28), color: _imagePath != null ? bgColor : null),
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (_show2022) ...[
                     const Text("Повномасштабна війна:", style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
-                    _buildOutlinedText(_calculateTimeDifference(DateTime(2022, 2, 24))),
+                    _buildOutlinedText(_calculateTimeDifference(_date2022Start)),
                   ],
                   if (_show2014) ...[
                     if (_show2022) const SizedBox(height: 10),
                     const Text("Війна з 2014 року:", style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
-                    _buildOutlinedText(_calculateTimeDifference(DateTime(2014, 4, 6))),
+                    _buildOutlinedText(_calculateTimeDifference(_date2014Start)),
                   ],
                 ],
               ),
