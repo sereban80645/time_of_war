@@ -1,8 +1,4 @@
-flutter_launcher_icons:
-  android: "launcher_icon"
-<<<<<<< HEAD
+flutter_icons:
+  image_path: "assets/icon/icon.png"
+  android: true
   ios: true
-=======
->>>>>>> bfcfcd234a2e9814eeb664976fa27fbb55228b71
-  image_path: "assets/icon.png"
-  min_sdk_android: 21
