@@ -1,3 +1,4 @@
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -6,6 +7,12 @@ import 'package:home_widget/home_widget.dart';
 import 'package:image_picker/image_picker.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AndroidAlarmManager.initialize();
+  DateTime now = DateTime.now();
+  DateTime nextMidnight = DateTime(now.year, now.month, now.day).add(const Duration(days: 1, minutes: 1));
+  await AndroidAlarmManager.periodic(const Duration(days: 1), 1, backgroundUpdate, startAt: nextMidnight, exact: true, wakeup: true);
+
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
@@ -438,4 +445,47 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
       Row(children: [const SizedBox(width: 20, child: Text("B", style: TextStyle(color: Colors.blue))), Expanded(child: Slider(value: b, min: 0, max: 255, activeColor: Colors.blue, onChanged: (v) => onChanged(r, g, v)))]),
     ]);
   }
+}
+
+
+@pragma('vm:entry-point')
+void backgroundUpdate() async {
+  final prefs = await SharedPreferences.getInstance();
+  
+  bool showHours = false;
+  for (String key in prefs.getKeys()) {
+    dynamic val = prefs.get(key);
+    if (val is bool && (key.toLowerCase().contains('hour') || key.toLowerCase().contains('год') || key.toLowerCase().contains('time'))) {
+      showHours = val;
+    }
+  }
+  
+  DateTime now = DateTime.now();
+  DateTime start2022 = DateTime(2022, 2, 24);
+  DateTime start2014 = DateTime(2014, 2, 20);
+  
+  int d2022 = now.difference(start2022).inDays;
+  int h2022 = now.difference(start2022).inHours % 24;
+  
+  int d2014 = now.difference(start2014).inDays;
+  int h2014 = now.difference(start2014).inHours % 24;
+  
+  String text22 = "${d2022}д.";
+  if (showHours) text22 += " ${h2022}г.";
+  
+  String text14 = "${d2014}д.";
+  if (showHours) text14 += " ${h2014}г.";
+  
+  for (String key in prefs.getKeys()) {
+    dynamic val = prefs.get(key);
+    if (val is String && val.contains('д.')) {
+      if (val.contains('159') || val.contains('160') || val.contains('161') || val.contains('162')) {
+        await prefs.setString(key, text22);
+      } else if (val.contains('452') || val.contains('453') || val.contains('454') || val.contains('455')) {
+        await prefs.setString(key, text14);
+      }
+    }
+  }
+  
+  await HomeWidget.updateWidget(name: "WidgetProvider", androidName: "WidgetProvider");
 }
