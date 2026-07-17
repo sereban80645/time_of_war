@@ -12,6 +12,7 @@ void main() async {
   DateTime now = DateTime.now();
   DateTime nextMidnight = DateTime(now.year, now.month, now.day).add(const Duration(days: 1, minutes: 1));
   await AndroidAlarmManager.periodic(const Duration(days: 1), 1, backgroundUpdate, startAt: nextMidnight, exact: true, wakeup: true);
+  await AndroidAlarmManager.periodic(const Duration(hours: 1), 2, backgroundUpdate, exact: true, wakeup: true);
 
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
@@ -450,6 +451,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
 @pragma('vm:entry-point')
 void backgroundUpdate() async {
+  WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   
   bool showHours = false;
@@ -479,10 +481,15 @@ void backgroundUpdate() async {
   for (String key in prefs.getKeys()) {
     dynamic val = prefs.get(key);
     if (val is String && val.contains('д.')) {
-      if (val.contains('159') || val.contains('160') || val.contains('161') || val.contains('162')) {
-        await prefs.setString(key, text22);
-      } else if (val.contains('452') || val.contains('453') || val.contains('454') || val.contains('455')) {
-        await prefs.setString(key, text14);
+      RegExp regExp = RegExp(r'(\d+)д\.');
+      Match? match = regExp.firstMatch(val);
+      if (match != null) {
+        int days = int.parse(match.group(1)!);
+        if (days > 4000) {
+          await prefs.setString(key, text14);
+        } else if (days > 1000 && days < 2000) {
+          await prefs.setString(key, text22);
+        }
       }
     }
   }

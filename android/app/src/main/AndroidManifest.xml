@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.time_of_war">
 
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <application
         tools:replace="android:name"
         android:label="Time_of_waR"
