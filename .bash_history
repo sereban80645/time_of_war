@@ -1,6 +1,3 @@
-name: time_of_war
-description: "Time_of_waR Application"
-publish_to: 'none'
 version: 1.0.0+1
 
 environment:
@@ -498,3 +495,6 @@ mkdir -p ~/.proot-distro/installed-rootfs/ubuntu/root/time_of_war/assets
 cp ~/storage/downloads/Ikkon1.png ~/.proot-distro/installed-rootfs/ubuntu/root/time_of_war/assets/icon.png
 proot-distro login ubuntu
 exit
+git push
+# Вхід у середовище Ubuntu (якщо використовуєш стандартний proot-distro)
+proot-distro login ubuntu
