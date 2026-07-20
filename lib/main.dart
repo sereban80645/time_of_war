@@ -455,66 +455,29 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 @pragma('vm:entry-point')
 
 @pragma('vm:entry-point')
+
+@pragma('vm:entry-point')
 void backgroundUpdate() async {
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
   
   final prefs = await SharedPreferences.getInstance();
   
-  bool showHours = false;
-  for (String key in prefs.getKeys()) {
-    dynamic val = prefs.get(key);
-    if (val is bool && (key.toLowerCase().contains('hour') || key.toLowerCase().contains('год') || key.toLowerCase().contains('time'))) {
-      showHours = val;
-    }
-  }
-  
-  DateTime now = DateTime.now();
-  int d2022, h2022, d2014, h2014;
-  
-  if (showHours) {
-    // ПОГОДИННИЙ РЕЖИМ: години рахуються від заданого часу
-    DateTime start2022 = DateTime(2022, 2, 24, 5, 0); 
-    DateTime start2014 = DateTime(2014, 2, 20, 12, 0); 
-    
-    d2022 = now.difference(start2022).inDays; 
-    h2022 = now.difference(start2022).inHours % 24;
-    
-    d2014 = now.difference(start2014).inDays; 
-    h2014 = now.difference(start2014).inHours % 24;
-  } else {
-    // РЕЖИМ ОПІВНОЧІ: години по нулях, оновлення суто календарне
-    DateTime nowCal = DateTime(now.year, now.month, now.day);
-    DateTime start2022Cal = DateTime(2022, 2, 24);
-    DateTime start2014Cal = DateTime(2014, 2, 20);
-    
-    d2022 = nowCal.difference(start2022Cal).inDays;
-    h2022 = 0;
-    
-    d2014 = nowCal.difference(start2014Cal).inDays;
-    h2014 = 0;
-  }
-  
-  String text22 = "${d2022}д.";
-  if (showHours) text22 += " ${h2022}г.";
-  
-  String text14 = "${d2014}д.";
-  if (showHours) text14 += " ${h2014}г.";
+  int currentHour = DateTime.now().hour;
+  int h2022 = (currentHour - 5 + 24) % 24;
+  int h2014 = (currentHour - 12 + 24) % 24;
   
   for (String key in prefs.getKeys()) {
     dynamic val = prefs.get(key);
-    if (val is String && val.contains('д.')) {
-      RegExp regExp = RegExp(r'(\d+)д\.');
-      Match? match = regExp.firstMatch(val);
-      if (match != null) {
-        int days = int.parse(match.group(1)!);
-        if (days > 4000) {
-          await prefs.setString(key, text14);
-          await HomeWidget.saveWidgetData(key, text14);
-        } else if (days > 1000 && days < 2000) {
-          await prefs.setString(key, text22);
-          await HomeWidget.saveWidgetData(key, text22);
-        }
+    if (val is String && val.contains('г.')) {
+      if (val.contains('12р.') || val.contains('453')) {
+        String newVal = val.replaceAll(RegExp(r'\d+г\.'), '${h2014}г.');
+        await prefs.setString(key, newVal);
+        await HomeWidget.saveWidgetData(key, newVal);
+      } else if (val.contains('4р.') || val.contains('160')) {
+        String newVal = val.replaceAll(RegExp(r'\d+г\.'), '${h2022}г.');
+        await prefs.setString(key, newVal);
+        await HomeWidget.saveWidgetData(key, newVal);
       }
     }
   }
