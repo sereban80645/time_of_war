@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'dart:io';
 import 'dart:async';
@@ -450,8 +451,12 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
 
 @pragma('vm:entry-point')
+
+@pragma('vm:entry-point')
 void backgroundUpdate() async {
   WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
+  
   final prefs = await SharedPreferences.getInstance();
   
   bool showHours = false;
@@ -463,14 +468,30 @@ void backgroundUpdate() async {
   }
   
   DateTime now = DateTime.now();
-  DateTime start2022 = DateTime(2022, 2, 24);
-  DateTime start2014 = DateTime(2014, 2, 20);
+  int d2022, h2022, d2014, h2014;
   
-  int d2022 = now.difference(start2022).inDays;
-  int h2022 = now.difference(start2022).inHours % 24;
-  
-  int d2014 = now.difference(start2014).inDays;
-  int h2014 = now.difference(start2014).inHours % 24;
+  if (showHours) {
+    // ПОГОДИННИЙ РЕЖИМ
+    DateTime start2022 = DateTime(2022, 2, 24, 5, 0); 
+    DateTime start2014 = DateTime(2014, 2, 20, 12, 0); 
+    
+    d2022 = now.difference(start2022).inDays;
+    h2022 = now.difference(start2022).inHours % 24;
+    
+    d2014 = now.difference(start2014).inDays;
+    h2014 = now.difference(start2014).inHours % 24;
+  } else {
+    // РЕЖИМ ОПІВНОЧІ
+    DateTime nowCal = DateTime(now.year, now.month, now.day);
+    DateTime start2022Cal = DateTime(2022, 2, 24);
+    DateTime start2014Cal = DateTime(2014, 2, 20);
+    
+    d2022 = nowCal.difference(start2022Cal).inDays;
+    h2022 = 0;
+    
+    d2014 = nowCal.difference(start2014Cal).inDays;
+    h2014 = 0;
+  }
   
   String text22 = "${d2022}д.";
   if (showHours) text22 += " ${h2022}г.";
@@ -487,8 +508,10 @@ void backgroundUpdate() async {
         int days = int.parse(match.group(1)!);
         if (days > 4000) {
           await prefs.setString(key, text14);
+          await HomeWidget.saveWidgetData(key, text14);
         } else if (days > 1000 && days < 2000) {
           await prefs.setString(key, text22);
+          await HomeWidget.saveWidgetData(key, text22);
         }
       }
     }
