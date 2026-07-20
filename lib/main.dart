@@ -459,6 +459,8 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 @pragma('vm:entry-point')
 
 @pragma('vm:entry-point')
+
+@pragma('vm:entry-point')
 void backgroundUpdate() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
