@@ -453,6 +453,8 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 @pragma('vm:entry-point')
 
 @pragma('vm:entry-point')
+
+@pragma('vm:entry-point')
 void backgroundUpdate() async {
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
@@ -471,17 +473,17 @@ void backgroundUpdate() async {
   int d2022, h2022, d2014, h2014;
   
   if (showHours) {
-    // ПОГОДИННИЙ РЕЖИМ
+    // ПОГОДИННИЙ РЕЖИМ: години рахуються від заданого часу
     DateTime start2022 = DateTime(2022, 2, 24, 5, 0); 
     DateTime start2014 = DateTime(2014, 2, 20, 12, 0); 
     
-    d2022 = now.difference(start2022).inDays;
+    d2022 = now.difference(start2022).inDays; 
     h2022 = now.difference(start2022).inHours % 24;
     
-    d2014 = now.difference(start2014).inDays;
+    d2014 = now.difference(start2014).inDays; 
     h2014 = now.difference(start2014).inHours % 24;
   } else {
-    // РЕЖИМ ОПІВНОЧІ
+    // РЕЖИМ ОПІВНОЧІ: години по нулях, оновлення суто календарне
     DateTime nowCal = DateTime(now.year, now.month, now.day);
     DateTime start2022Cal = DateTime(2022, 2, 24);
     DateTime start2014Cal = DateTime(2014, 2, 20);
