@@ -457,10 +457,10 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 @pragma('vm:entry-point')
 
 @pragma('vm:entry-point')
+
+@pragma('vm:entry-point')
 void backgroundUpdate() async {
   WidgetsFlutterBinding.ensureInitialized();
-  DartPluginRegistrant.ensureInitialized();
-  
   final prefs = await SharedPreferences.getInstance();
   
   int currentHour = DateTime.now().hour;
@@ -481,6 +481,5 @@ void backgroundUpdate() async {
       }
     }
   }
-  
   await HomeWidget.updateWidget(name: "WidgetProvider", androidName: "WidgetProvider");
 }
