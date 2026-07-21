@@ -154,7 +154,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
   Timer? _debounce;
 
   final DateTime _date2022Start = DateTime(2022, 2, 24, 5, 0); 
-  final DateTime _date2014Start = DateTime(2014, 2, 20, 0, 0); 
+  final DateTime _date2014Start = DateTime(2014, 2, 20, 12, 0); 
 
   @override
   void initState() {
@@ -460,9 +460,11 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
 @pragma('vm:entry-point')
 
+
 @pragma('vm:entry-point')
 void backgroundUpdate() async {
   WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized(); 
   final prefs = await SharedPreferences.getInstance();
   
   int currentHour = DateTime.now().hour;
