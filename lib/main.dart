@@ -247,7 +247,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           imagePath: _imagePath,
         ),
         key: 'widget_image',
-        logicalSize: Size(800, dynamicHeight),
+        logicalSize: const Size(400, 200),
       );
 
       await HomeWidget.updateWidget(name: 'WidgetProvider', androidName: 'WidgetProvider');
