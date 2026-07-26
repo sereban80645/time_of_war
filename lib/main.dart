@@ -92,7 +92,8 @@ class TimeOfWarWidgetRender extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 800,
-      decoration: BoxDecoration(
+      alignment: Alignment.center,
+          decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(56),
         color: imagePath == null ? bgColor : null,
         image: imagePath != null
@@ -103,15 +104,16 @@ class TimeOfWarWidgetRender extends StatelessWidget {
             : null,
       ),
       child: Container(
-        decoration: BoxDecoration(
+        alignment: Alignment.center,
+          decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(56),
           color: imagePath != null ? bgColor : null,
         ),
         padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 40.0),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             if (show2022) ...[
               Text("Повномасштабна війна:", style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500)),
@@ -324,25 +326,28 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Text("Прев'ю віджета:", style: TextStyle(color: Colors.grey, fontSize: 12)),
           const SizedBox(height: 6),
           Container(
             width: double.infinity,
-            decoration: BoxDecoration(
+            alignment: Alignment.center,
+          decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),
               color: _imagePath == null ? bgColor : null,
               image: _imagePath != null ? DecorationImage(image: FileImage(File(_imagePath!)), fit: BoxFit.cover) : null,
               border: Border.all(color: Colors.white10, width: 1),
             ),
             child: Container(
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(28), color: _imagePath != null ? bgColor : null),
+              alignment: Alignment.center,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(28), color: _imagePath != null ? bgColor : null),
               padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
               child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   if (_show2022) ...[
                     const Text("Повномасштабна війна:", style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
@@ -381,6 +386,8 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           bottom: const TabBar(indicatorColor: Colors.deepPurpleAccent, tabs: [Tab(text: "Головне"), Tab(text: "Кольори"), Tab(text: "Контур")]),
         ),
         body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _buildWidgetPreview(),
             Expanded(
@@ -441,7 +448,9 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
   }
 
   Widget _buildRGBSliders(double r, double g, double b, Function(double, double, double) onChanged) {
-    return Column(children: [
+    return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,children: [
       Row(children: [const SizedBox(width: 20, child: Text("R", style: TextStyle(color: Colors.red))), Expanded(child: Slider(value: r, min: 0, max: 255, activeColor: Colors.red, onChanged: (v) => onChanged(v, g, b)))]),
       Row(children: [const SizedBox(width: 20, child: Text("G", style: TextStyle(color: Colors.green))), Expanded(child: Slider(value: g, min: 0, max: 255, activeColor: Colors.green, onChanged: (v) => onChanged(r, v, b)))]),
       Row(children: [const SizedBox(width: 20, child: Text("B", style: TextStyle(color: Colors.blue))), Expanded(child: Slider(value: b, min: 0, max: 255, activeColor: Colors.blue, onChanged: (v) => onChanged(r, g, v)))]),
