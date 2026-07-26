@@ -111,9 +111,9 @@ class TimeOfWarWidgetRender extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 40.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           children: [
             if (show2022) ...[
               Text("Повномасштабна війна:", style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500)),
@@ -326,9 +326,10 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
+          children: [
           const Text("Прев'ю віджета:", style: TextStyle(color: Colors.grey, fontSize: 12)),
           const SizedBox(height: 6),
           Container(
@@ -345,10 +346,10 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(28), color: _imagePath != null ? bgColor : null),
               padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
               child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
+          children: [
                   if (_show2022) ...[
                     const Text("Повномасштабна війна:", style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
                     _buildOutlinedText(_calculateTimeDifference(_date2022Start)),
@@ -386,6 +387,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           bottom: const TabBar(indicatorColor: Colors.deepPurpleAccent, tabs: [Tab(text: "Головне"), Tab(text: "Кольори"), Tab(text: "Контур")]),
         ),
         body: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -449,8 +451,10 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
   Widget _buildRGBSliders(double r, double g, double b, Function(double, double, double) onChanged) {
     return Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,children: [
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
       Row(children: [const SizedBox(width: 20, child: Text("R", style: TextStyle(color: Colors.red))), Expanded(child: Slider(value: r, min: 0, max: 255, activeColor: Colors.red, onChanged: (v) => onChanged(v, g, b)))]),
       Row(children: [const SizedBox(width: 20, child: Text("G", style: TextStyle(color: Colors.green))), Expanded(child: Slider(value: g, min: 0, max: 255, activeColor: Colors.green, onChanged: (v) => onChanged(r, v, b)))]),
       Row(children: [const SizedBox(width: 20, child: Text("B", style: TextStyle(color: Colors.blue))), Expanded(child: Slider(value: b, min: 0, max: 255, activeColor: Colors.blue, onChanged: (v) => onChanged(r, g, v)))]),
