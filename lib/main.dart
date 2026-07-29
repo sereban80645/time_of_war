@@ -333,7 +333,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           const Text("Прев'ю віджета:", style: TextStyle(color: Colors.grey, fontSize: 12)),
           const SizedBox(height: 6),
           Container(
-            width: double.infinity,
+            width: 140,
             alignment: Alignment.center,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),
