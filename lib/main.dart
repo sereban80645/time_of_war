@@ -117,12 +117,12 @@ class TimeOfWarWidgetRender extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (show2022) ...[
-              Text("Повномасштабна війна:", softWrap: false, softWrap: false, style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500)),
+              Text("Повномасштабна війна:", softWrap: false, style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500)),
               _buildOutlinedText(time2022),
             ],
             if (show2014) ...[
               if (show2022) const SizedBox(height: 20),
-              Text("Війна з 2014 року:", softWrap: false, softWrap: false, style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500)),
+              Text("Війна з 2014 року:", softWrap: false, style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500)),
               _buildOutlinedText(time2014),
             ],
           ],
@@ -370,12 +370,12 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
                   if (_show2022) ...[
-                    const Text("Повномасштабна війна:", softWrap: false, softWrap: false, style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+                    const Text("Повномасштабна війна:", softWrap: false, style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
                     _buildOutlinedText(_calculateTimeDifference(_date2022Start)),
                   ],
                   if (_show2014) ...[
                     if (_show2022) const SizedBox(height: 10),
-                    const Text("Війна з 2014 року:", softWrap: false, softWrap: false, style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+                    const Text("Війна з 2014 року:", softWrap: false, style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
                     _buildOutlinedText(_calculateTimeDifference(_date2014Start)),
                   ],
                 ],
