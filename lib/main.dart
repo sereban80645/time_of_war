@@ -92,7 +92,7 @@ class TimeOfWarWidgetRender extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 800,
+      width: 200,
       alignment: Alignment.center,
           decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(56),
@@ -117,12 +117,12 @@ class TimeOfWarWidgetRender extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (show2022) ...[
-              Text("Повномасштабна війна:", style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500)),
+              Text("Повномасштабна війна:", softWrap: false, style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500)),
               _buildOutlinedText(time2022),
             ],
             if (show2014) ...[
               if (show2022) const SizedBox(height: 20),
-              Text("Війна з 2014 року:", style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500)),
+              Text("Війна з 2014 року:", softWrap: false, style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500)),
               _buildOutlinedText(time2014),
             ],
           ],
@@ -268,7 +268,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           imagePath: _imagePath,
         ),
         key: 'widget_image',
-        logicalSize: const Size(400, 200),
+        logicalSize: const Size(400, 400),
       );
 
       await HomeWidget.updateWidget(name: 'WidgetProvider', androidName: 'WidgetProvider');
@@ -352,7 +352,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           const Text("Прев'ю віджета:", style: TextStyle(color: Colors.grey, fontSize: 12)),
           const SizedBox(height: 6),
           Container(
-            width: 140,
+            width: 200,
             alignment: Alignment.center,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),
@@ -370,12 +370,12 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
                   if (_show2022) ...[
-                    const Text("Повномасштабна війна:", style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+                    const Text("Повномасштабна війна:", softWrap: false, style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
                     _buildOutlinedText(_calculateTimeDifference(_date2022Start)),
                   ],
                   if (_show2014) ...[
                     if (_show2022) const SizedBox(height: 10),
-                    const Text("Війна з 2014 року:", style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+                    const Text("Війна з 2014 року:", softWrap: false, style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
                     _buildOutlinedText(_calculateTimeDifference(_date2014Start)),
                   ],
                 ],
@@ -429,7 +429,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         SwitchListTile(title: const Text("Війна 2022"), value: _show2022, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _show2022 = v); _saveSetting('show2022', v); }),
-        SwitchListTile(title: const Text("Війна 2014"), value: _show2014, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _show2014 = v); _saveSetting('show2014', v); }),
+        SwitchListTile(title: const Text("Війна 2014", softWrap: false), value: _show2014, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _show2014 = v); _saveSetting('show2014', v); }),
         SwitchListTile(title: const Text("Показ годин"), value: _showHour, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _showHour = v); _saveSetting('showHour', v); }),
         SwitchListTile(title: const Text("Облік в днях"), value: _showDaysOnly, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _showDaysOnly = v); _saveSetting('showDaysOnly', v); }),
         const Divider(color: Colors.white10),
