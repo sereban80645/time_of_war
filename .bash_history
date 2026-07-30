@@ -1,428 +1,3 @@
-version: 1.0.0+1
-
-environment:
-  sdk: ">=3.0.0 <4.0.0"
-
-dependencies:
-  flutter:
-    sdk: flutter
-  shared_preferences: ^2.5.5
-  home_widget: ^0.9.3
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_launcher_icons: ^0.14.1
-
-flutter:
-  uses-material-design: true
-  assets:
-    - assets/icon.png
-
-flutter_launcher_icons:
-  android: "launcher_icon"
-  image_path: "assets/icon.png"
-  min_sdk_android: 21
-EOF
-
-# 2. Відновлюємо логіку налаштувань у lib/settings_page.dart
-cat << 'EOF' > lib/settings_page.dart
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:home_widget/home_widget.dart';
-
-class SettingsPage extends StatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
-
-  @override
-  State<SettingsPage> createState() => _SettingsPageState();
-}
-
-class _SettingsPageState extends State<SettingsPage> {
-  final ValueNotifier<bool> _showOrdinalDay = ValueNotifier<bool>(true);
-  final ValueNotifier<String> _startDate = ValueNotifier<String>('24 лютого 2022 05:00');
-  final ValueNotifier<String> _theme = ValueNotifier<String>('Військова');
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSettings();
-  }
-
-  Future<void> _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    _showOrdinalDay.value = prefs.getBool('show_ordinal_day') ?? true;
-    _startDate.value = prefs.getString('start_date') ?? '24 лютого 2022 05:00';
-    _theme.value = prefs.getString('theme') ?? 'Військова';
-  }
-
-  Future<void> _updateSetting(String key, dynamic value) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (value is bool) {
-      await prefs.setBool(key, value);
-      await HomeWidget.saveWidgetData<bool>(key, value);
-    } else if (value is String) {
-      await prefs.setString(key, value);
-      await HomeWidget.saveWidgetData<String>(key, value);
-    }
-    await HomeWidget.updateWidget(name: 'AppWidgetProvider', androidName: 'AppWidgetProvider');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Налаштування Time_of_waR', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFF1A1A1A),
-        centerTitle: true,
-      ),
-      body: Container(
-        color: const Color(0xFF121212),
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            ValueListenableBuilder<bool>(
-              valueListenable: _showOrdinalDay,
-              builder: (context, isOrdinal, child) {
-                return SwitchListTile(
-                  title: const Text('Формат відліку', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
-                  subtitle: Text(
-                    isOrdinal ? 'Поточний день події (напр. День 1587)' : 'Загальний пройдений час',
-                    style: const TextStyle(color: Colors.grey, fontSize: 14),
-                  ),
-                  value: isOrdinal,
-                  activeColor: const Color(0xFF2196F3),
-                  onChanged: (value) {
-                    _showOrdinalDay.value = value;
-                    _updateSetting('show_ordinal_day', value);
-                  },
-                );
-              },
-            ),
-            const Divider(color: Color(0xFF2A2A2A), height: 32),
-            ValueListenableBuilder<String>(
-              valueListenable: _startDate,
-              builder: (context, date, child) {
-                return ListTile(
-                  title: const Text('Точка відліку', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
-                  trailing: DropdownButton<String>(
-                    value: date,
-                    dropdownColor: const Color(0xFF1A1A1A),
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    underline: Container(height: 1, color: const Color(0xFF2196F3)),
-                    items: ['20 лютого 2014', '24 лютого 2022 05:00'].map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        _startDate.value = newValue;
-                        _updateSetting('start_date', newValue);
-                      }
-                    },
-                  ),
-                );
-              },
-            ),
-            const Divider(color: Color(0xFF2A2A2A), height: 32),
-            ValueListenableBuilder<String>(
-              valueListenable: _theme,
-              builder: (context, currentTheme, child) {
-                return ListTile(
-                  title: const Text('Стиль відображення', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
-                  trailing: DropdownButton<String>(
-                    value: currentTheme,
-                    dropdownColor: const Color(0xFF1A1A1A),
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    underline: Container(height: 1, color: const Color(0xFF2196F3)),
-                    items: ['Світла', 'Темна', 'Військова'].map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        _theme.value = newValue;
-                        _updateSetting('theme', newValue);
-                      }
-                    },
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-EOF
-
-# 3. Підтягуємо залежності та генеруємо іконку
-flutter pub get
-dart run flutter_launcher_icons
-# 4. Очищаємо кеш від попередніх невдалих спроб і запускаємо збірку
-flutter clean
-flutter build apk --release
-# 1. Переходимо в проєкт і видаляємо пошкоджені файли
-cd ~/time_of_war
-rm -f pubspec.yaml lib/settings_page.dart
-mkdir -p lib assets
-# 2. Створюємо генератор, який ідеально запише код в обхід термінала
-cat << 'EOF' > fix.dart
-import 'dart:io';
-void main() {
-  String yaml = '''
-name: time_of_war
-description: "Time_of_waR Application"
-version: 1.0.0+1
-environment:
-@@sdk: ">=3.0.0 <4.0.0"
-dependencies:
-@@flutter:
-@@@@sdk: flutter
-@@shared_preferences: ^2.5.5
-@@home_widget: ^0.9.3
-dev_dependencies:
-@@flutter_launcher_icons: ^0.14.1
-flutter:
-@@uses-material-design: true
-@@assets:
-@@@@- assets/icon.png
-flutter_launcher_icons:
-@@android: "launcher_icon"
-@@image_path: "assets/icon.png"
-@@min_sdk_android: 21
-'''.replaceAll('@@', '  ');
-  File('pubspec.yaml').writeAsStringSync(yaml);
-
-  String dartCode = '''
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:home_widget/home_widget.dart';
-class SettingsPage extends StatefulWidget {
-const SettingsPage({Key? key}) : super(key: key);
-@override
-State<SettingsPage> createState() => _SettingsPageState();
-}
-class _SettingsPageState extends State<SettingsPage> {
-final ValueNotifier<bool> _showOrdinalDay = ValueNotifier<bool>(true);
-final ValueNotifier<String> _startDate = ValueNotifier<String>('24 лютого 2022 05:00');
-final ValueNotifier<String> _theme = ValueNotifier<String>('Військова');
-@override
-void initState() {
-super.initState();
-_loadSettings();
-}
-Future<void> _loadSettings() async {
-final prefs = await SharedPreferences.getInstance();
-_showOrdinalDay.value = prefs.getBool('show_ordinal_day') ?? true;
-_startDate.value = prefs.getString('start_date') ?? '24 лютого 2022 05:00';
-_theme.value = prefs.getString('theme') ?? 'Військова';
-}
-Future<void> _updateSetting(String key, dynamic value) async {
-final prefs = await SharedPreferences.getInstance();
-if (value is bool) {
-await prefs.setBool(key, value);
-await HomeWidget.saveWidgetData<bool>(key, value);
-} else if (value is String) {
-await prefs.setString(key, value);
-await HomeWidget.saveWidgetData<String>(key, value);
-}
-await HomeWidget.updateWidget(name: 'AppWidgetProvider', androidName: 'AppWidgetProvider');
-}
-@override
-Widget build(BuildContext context) {
-return Scaffold(
-appBar: AppBar(title: const Text('Налаштування Time_of_waR'), backgroundColor: const Color(0xFF1A1A1A)),
-body: Container(
-color: const Color(0xFF121212),
-padding: const EdgeInsets.all(16.0),
-child: ListView(
-children: [
-ValueListenableBuilder<bool>(
-valueListenable: _showOrdinalDay,
-builder: (context, isOrdinal, child) {
-return SwitchListTile(
-title: const Text('Формат відліку', style: TextStyle(color: Colors.white)),
-subtitle: Text(isOrdinal ? 'Поточний день події' : 'Загальний минулий час', style: const TextStyle(color: Colors.grey)),
-value: isOrdinal,
-activeColor: const Color(0xFF2196F3),
-onChanged: (value) { _showOrdinalDay.value = value; _updateSetting('show_ordinal_day', value); },
-);
-},
-),
-const Divider(color: Colors.grey),
-ValueListenableBuilder<String>(
-valueListenable: _startDate,
-builder: (context, date, child) {
-return ListTile(
-title: const Text('Точка відліку', style: TextStyle(color: Colors.white)),
-trailing: DropdownButton<String>(
-value: date,
-dropdownColor: const Color(0xFF1A1A1A),
-style: const TextStyle(color: Colors.white),
-items: ['20 лютого 2014', '24 лютого 2022 05:00'].map((d) { return DropdownMenuItem(value: d, child: Text(d)); }).toList(),
-onChanged: (val) { if (val != null) { _startDate.value = val; _updateSetting('start_date', val); } },
-),
-);
-},
-),
-const Divider(color: Colors.grey),
-ValueListenableBuilder<String>(
-valueListenable: _theme,
-builder: (context, theme, child) {
-return ListTile(
-title: const Text('Стиль відображення', style: TextStyle(color: Colors.white)),
-trailing: DropdownButton<String>(
-value: theme,
-dropdownColor: const Color(0xFF1A1A1A),
-style: const TextStyle(color: Colors.white),
-items: ['Світла', 'Темна', 'Військова'].map((t) { return DropdownMenuItem(value: t, child: Text(t)); }).toList(),
-onChanged: (val) { if (val != null) { _theme.value = val; _updateSetting('theme', val); } },
-),
-);
-},
-),
-],
-),
-),
-);
-}
-}
-''';
-  File('lib/settings_page.dart').writeAsStringSync(dartCode);
-}
-EOF
-
-# 3. Запускаємо генератор і видаляємо його
-dart fix.dart
-rm fix.dart
-# 4. Копіюємо іконку-щит
-cp /sdcard/1000219542.png assets/icon.png 2>/dev/null || cp /storage/emulated/0/1000219542.png assets/icon.png 2>/dev/null
-# 5. Оновлюємо проєкт та генеруємо іконку додатка
-flutter clean
-flutter pub get
-dart run flutter_launcher_icons
-# 1. Очищення від попередніх невдач
-flutter clean
-# 2. Підготовка іконки (з вашого файлу 1000219542.png)
-mkdir -p assets
-cp /sdcard/1000219542.png assets/icon.png
-# 3. Автоматична корекція pubspec.yaml (уникаємо помилок відступів)
-python3 -c "
-import yaml
-with open('pubspec.yaml', 'r') as f:
-    data = yaml.safe_load(f)
-if not data: data = {}
-data['flutter_icons'] = {
-    'android': 'launcher_icon',
-    'image_path': 'assets/icon.png',
-    'min_sdk_android': 21
-}
-with open('pubspec.yaml', 'w') as f:
-    yaml.dump(data, f, default_flow_style=False)
-"
-# 4. Фінальна збірка
-flutter pub get
-dart run flutter_launcher_icons:main
-flutter build apk --release
-pwd
-ls
-pwd
-ls -F
-# Перехід у папку вашого проєкту (замініть 'my_flutter_app' на справжню назву вашої папки)
-cd /home/user/my_flutter_app
-pwd
-ls -F
-nano pubspec.yaml
-pwd && ls -F && if [ -f "pubspec.yaml" ]; then echo "--- ФАЙЛ ЗНАЙДЕНО ---"; else echo "--- ПОМИЛКА: ФАЙЛУ НЕМАЄ В ЦІЙ ПАПЦІ ---"; fi
-echo "--- ПЕРЕВІРКА ДИРЕКТОРІЇ ---"
-pwd
-ls -F
-echo "--- ПЕРЕВІРКА ФАЙЛУ ПРОЄКТУ ---"
-if [ -f "pubspec.yaml" ]; then     echo "Файл pubspec.yaml ЗНАЙДЕНО тут."; else     echo "ПОМИЛКА: Файл pubspec.yaml НЕ ЗНАЙДЕНО в цій папці."; fi
-echo "--- ВЕРСІЯ FLUTTER ---"
-flutter --version | head -n 1
-# 1. Переходимо безпосередньо всередину вашого проєкту
-cd /root/Time_of_waR
-# 2. Очищаємо кеш від попередніх невдалих спроб
-flutter clean
-# 3. Створюємо папку assets та копіюємо туди вашу нову іконку
-mkdir -p assets
-cp /sdcard/1000219542.png assets/icon.png 2>/dev/null || echo "Попередження: перевірте назву файлу іконки в /sdcard/"
-# 4. Автоматично додаємо пакет через сам Flutter (це виключить помилки синтаксису)
-flutter pub add --dev flutter_launcher_icons
-# 5. Прописуємо конфігурацію іконки через Python, щоб гарантувати ідеальні відступи
-python3 -c "
-import yaml
-with open('pubspec.yaml', 'r') as f:
-    data = yaml.safe_load(f) or {}
-
-data['flutter_icons'] = {
-    'android': 'launcher_icon',
-    'image_path': 'assets/icon.png',
-    'min_sdk_android': 21
-}
-
-if 'flutter' not in data or data['flutter'] is None:
-    data['flutter'] = {}
-if 'assets' not in data['flutter'] or data['flutter']['assets'] is None:
-    data['flutter']['assets'] = []
-if 'assets/icon.png' not in data['flutter']['assets']:
-    data['flutter']['assets'].append('assets/icon.png')
-
-with open('pubspec.yaml', 'w') as f:
-    yaml.dump(data, f, default_flow_style=False)
-print('--- Конфігурацію pubspec.yaml успішно виправлено! ---')
-"
-# 6. Генеруємо нові іконки додатка та запускаємо фінальну збірку APK
-flutter pub get
-dart run flutter_launcher_icons:main
-flutter build apk --release
-# 1. Заходимо в правильну папку (яку ми нарешті побачили)
-cd /root/Time_of_waR
-# 2. Додаємо залежність офіційним інструментом Flutter (без пайтона)
-flutter pub add --dev flutter_launcher_icons
-# 3. Копіюємо іконку
-mkdir -p assets
-cp /sdcard/1000219542.png assets/icon.png
-# 4. Просто влиStep конфігурацію в кінець файлу за допомогою cat
-cat << 'EOF' >> pubspec.yaml
-
-flutter_launcher_icons:
-  android: "launcher_icon"
-  image_path: "assets/icon.png"
-  min_sdk_android: 21
-EOF
-
-# 5. Оновлюємо та запускаємо генерацію
-flutter pub get
-dart run flutter_launcher_icons:main
-flutter build apk --release
-# 1. Переходимо в потрібну папку (там, де лежить проєкт)
-cd /root/Time_of_waR
-# 2. Чистимо термінал і проєкт від попередніх невдалих збірок
-flutter clean
-# 3. ПОВНІСТЮ ПЕРЕЗАПИСУЄМО pubspec.yaml на 100% чистий (без зайвих символів)
-cat > pubspec.yaml << 'EOF'
-name: time_of_war
-description: "Time_of_waR Application"
-version: 1.0.0+1
-
-environment:
-  sdk: ">=3.0.0 <4.0.0"
-
-dependencies:
-  flutter:
-    sdk: flutter
-  shared_preferences: ^2.5.5
-  home_widget: ^0.9.3
-
-dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.14.1
@@ -498,3 +73,428 @@ exit
 git push
 # Вхід у середовище Ubuntu (якщо використовуєш стандартний proot-distro)
 proot-distro login ubuntu
+cd ~/projects/time_of_war
+cat << 'EOF' > lib/main.dart
+import 'dart:async';
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const TimeOfWarApp());
+}
+
+class TimeOfWarApp extends StatelessWidget {
+  const TimeOfWarApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(),
+      home: const TimerScreen(),
+    );
+  }
+}
+
+class TimerScreen extends StatefulWidget {
+  const TimerScreen({Key? key}) : super(key: key);
+
+  @override
+  State<TimerScreen> createState() => _TimerScreenState();
+}
+
+class _TimerScreenState extends State<TimerScreen> {
+  late Timer _timer;
+  final DateTime startDate2022 = DateTime(2022, 2, 24, 0, 0, 0);
+  final DateTime startDate2014 = DateTime(2014, 4, 14, 0, 0, 0);
+  
+  Duration _duration2022 = Duration.zero;
+  Duration _duration2014 = Duration.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _updateTime();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _updateTime();
+    });
+  }
+
+  void _updateTime() {
+    final now = DateTime.now();
+    setState(() {
+      _duration2022 = now.difference(startDate2022);
+      _duration2014 = now.difference(startDate2014);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final int days2022 = _duration2022.inDays;
+    final int hours2022 = _duration2022.inHours % 24;
+
+    final int days2014 = _duration2014.inDays;
+    final int hours2014 = _duration2014.inHours % 24;
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Center(
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          decoration: BoxDecoration(
+            color: Colors.grey[900],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[800]!, width: 1),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                'Повномасштабна війна:',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    '$days2022',
+                    style: const TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Text(
+                    ' д. ',
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '$hours2022',
+                    style: const TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Text(
+                    ' г.',
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Війна з 2014 року:',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    '$days2014',
+                    style: const TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Text(
+                    ' д. ',
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '$hours2014',
+                    style: const TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Text(
+                    ' г.',
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+EOF
+
+git add lib/main.dart
+git commit -m "Center widget content vertically"
+git push -f origin main
+cd ~/projects/time_of_war
+git reset --hard 8b4743d
+git push -f origin main
+cd ~/projects/time_of_war
+python3 -c '
+import re
+
+with open("lib/main.dart", "r", encoding="utf-8") as f:
+    code = f.read()
+
+# 1. Однакове закруглення для всіх кутів віджета
+code = re.sub(r"BorderRadius\.only\([\s\S]*?\)", "BorderRadius.circular(18)", code)
+
+# 2. Вертикальне центрування у Column
+if "mainAxisAlignment:" in code:
+    code = re.sub(r"mainAxisAlignment:\s*MainAxisAlignment\.\w+", "mainAxisAlignment: MainAxisAlignment.center", code)
+else:
+    code = code.replace("Column(", "Column(\n          mainAxisAlignment: MainAxisAlignment.center,")
+
+# 3. Зменшення великих відступів, щоб нижній таймер не влазив у край
+code = re.sub(r"SizedBox\(\s*height:\s*(?:1[0-9]|[2-9][0-9])\.?0?\s*\)", "SizedBox(height: 4)", code)
+
+with open("lib/main.dart", "w", encoding="utf-8") as f:
+    f.write(code)
+'
+git add lib/main.dart
+git commit -m "Fix widget vertical centering and corner radius"
+git push -f origin main
+cd ~/projects/time_of_war
+# 1. Скасовуємо коміт із пошкодженим синтаксисом
+git reset --hard HEAD~1
+# 2. Виправляємо закруглення та центрування без пошкодження дужок Dart
+python3 -c '
+with open("lib/main.dart", "r", encoding="utf-8") as f:
+    code = f.read()
+
+# Безпечна заміна BorderRadius.only з урахуванням вкладених дужок
+target = "BorderRadius.only("
+while target in code:
+    start = code.find(target)
+    depth = 0
+    end = start + len(target) - 1
+    for i in range(start + len(target) - 1, len(code)):
+        if code[i] == "(":
+            depth += 1
+        elif code[i] == ")":
+            depth -= 1
+            if depth == 0:
+                end = i
+                break
+    code = code[:start] + "BorderRadius.circular(18)" + code[end + 1:]
+
+# Вертикальне центрування
+import re
+code = re.sub(r"MainAxisAlignment\.(start|end|spaceBetween|spaceAround|spaceEvenly)", "MainAxisAlignment.center", code)
+
+with open("lib/main.dart", "w", encoding="utf-8") as f:
+    f.write(code)
+'
+# 3. Фіксуємо та відправляємо на GitHub
+git add lib/main.dart
+git commit -m "Fix widget centering and border radius safely"
+git push -f origin main
+cd ~/projects/time_of_war
+# 1. Відкочуємо останній зламаний коміт
+git reset --hard HEAD~1
+# 2. Безпечно прибираємо const та налаштовуємо закруглення й центрування
+python3 -c '
+with open("lib/main.dart", "r", encoding="utf-8") as f:
+    code = f.read()
+
+# Прибираємо const перед BoxDecoration, щоб не виникало помилок компіляції
+code = code.replace("const BoxDecoration(", "BoxDecoration(")
+
+# Замінюємо BorderRadius.only на однакове закруглення кутів
+target = "BorderRadius.only("
+while target in code:
+    start = code.find(target)
+    depth = 0
+    end = start + len(target) - 1
+    for i in range(start + len(target) - 1, len(code)):
+        if code[i] == "(":
+            depth += 1
+        elif code[i] == ")":
+            depth -= 1
+            if depth == 0:
+                end = i
+                break
+    code = code[:start] + "BorderRadius.circular(18.0)" + code[end + 1:]
+
+# Вирівнюємо вміст вертикально по центру
+import re
+code = re.sub(r"MainAxisAlignment\.(start|end|spaceBetween|spaceAround|spaceEvenly)", "MainAxisAlignment.center", code)
+
+with open("lib/main.dart", "w", encoding="utf-8") as f:
+    f.write(code)
+'
+# 3. Зберігаємо та відправляємо на GitHub
+git add lib/main.dart
+git commit -m "Fix const decoration error and align widget vertically"
+git push -f origin main
+cd ~/projects/time_of_war
+python3 -c '
+import re
+
+def replace_balanced(text, prefix, replacement):
+    while prefix in text:
+        start = text.find(prefix)
+        depth = 0
+        end = start
+        for i in range(start + len(prefix) - 1, len(text)):
+            if text[i] == "(":
+                depth += 1
+            elif text[i] == ")":
+                depth -= 1
+                if depth == 0:
+                    end = i
+                    break
+        if end > start:
+            text = text[:start] + replacement + text[end + 1:]
+        else:
+            break
+    return text
+
+with open("lib/main.dart", "r", encoding="utf-8") as f:
+    code = f.read()
+
+parts = code.split("class ")
+new_parts = [parts[0]]
+
+for cls in parts[1:]:
+    if "Повномасштабна" in cls:
+        # Універсальне закруглення для всіх кутів
+        cls = replace_balanced(cls, "BorderRadius.only(", "BorderRadius.circular(18.0)")
+        cls = replace_balanced(cls, "BorderRadius.vertical(", "BorderRadius.circular(18.0)")
+        
+        # Зменшуємо проміжки між текстом, щоб віджет став нижчим і не обрізався
+        cls = re.sub(r"SizedBox\(\s*height:\s*\d+\.?\d*\s*\)", "SizedBox(height: 2.0)", cls)
+        
+        # Вирівнюємо строго по центру
+        cls = re.sub(r"MainAxisAlignment\.\w+", "MainAxisAlignment.center", cls)
+        
+        # Робимо колонку компактною по висоті
+        cls = re.sub(r"mainAxisSize:\s*MainAxisSize\.[^,]+,", "", cls)
+        cls = cls.replace("Column(", "Column(mainAxisSize: MainAxisSize.min, ")
+        
+        # Гарантуємо, що фонова картинка не вилізе за закруглені кути
+        cls = re.sub(r"clipBehavior:\s*Clip\.[^,]+,", "", cls)
+        cls = cls.replace("decoration: BoxDecoration", "clipBehavior: Clip.antiAlias, decoration: BoxDecoration")
+            
+    new_parts.append(cls)
+
+code = "class ".join(new_parts)
+
+with open("lib/main.dart", "w", encoding="utf-8") as f:
+    f.write(code)
+'
+git add lib/main.dart
+git commit -m "Fix widget clipping by Android and align content center"
+git push -f origin main
+cd ~/projects/time_of_war
+git reset --hard HEAD~1
+git push -f origin main
+cd ~/projects/time_of_war
+git log --oneline -n 7
+git reset --hard 3d0726e
+git push -f origin main
+cd ~/projects/time_of_war
+curl -F "file=@lib/main.dart" https://0x0.st
+curl --data-binary @lib/main.dart https://paste.rs/
+cd ~/projects/time_of_war
+cat << 'EOF' > update_widget.py
+with open("lib/main.dart", "r", encoding="utf-8") as f:
+    code = f.read()
+
+# Зменшуємо прев'ю до квадрата 1х1 у меню налаштувань
+code = code.replace("height: 200", "height: 140")
+code = code.replace("height: 220", "height: 140")
+code = code.replace("width: double.infinity", "width: 140")
+
+with open("lib/main.dart", "w", encoding="utf-8") as f:
+    f.write(code)
+print("Updated successfully")
+EOF
+
+python3 update_widget.py
+git add lib/main.dart
+git commit -m "Fix widget preview size and proportions 1x1"
+git push -f origin main
+cd ~/projects/time_of_war
+python3 -c '
+with open("lib/main.dart", "r", encoding="utf-8") as f:
+    code = f.read()
+
+# Робимо контейнер прев\'ю квадратним (1:1), щоб він повністю відповідав віджету на робочому столі
+# Шукаємо контейнер превю та примусово задаємо йому рівні сторони або AspectRatio
+if "Прев" in code and "Container(" in code:
+    code = code.replace("Container(\n          width: double.infinity", "AspectRatio(\n        aspectRatio: 1.0,\n        child: Container(\n          width: double.infinity")
+code = code.replace("height: 180", "height: 150").replace("width: double.infinity", "width: 150")
+with open("lib/main.dart", "w", encoding="utf-8") as f:
+'
+
+git add lib/main.dart
+git commit -m "Make widget preview square 1x1 to match home screen"
+git push -f origin main
+cd ~/projects/time_of_war
+
+cat << 'EOF' > fix.py
+with open("lib/main.dart", "r", encoding="utf-8") as f:
+    content = f.read()
+
+# Робимо однакові закруглені кути для віджета
+content = content.replace("BorderRadius.only(", "BorderRadius.circular(18.0) /* ")
+content = content.replace("BorderRadius.vertical(", "BorderRadius.circular(18.0) /* ")
+
+with open("lib/main.dart", "w", encoding="utf-8") as f:
+    f.write(content)
+
+print("Script executed successfully")
+EOF
+
+python3 fix.py
+rm fix.py
+
+git add lib/main.dart
+git commit -m "Fix widget border radius uniformly"
+git push -f origin main
+cd ~/projects/time_of_war
+echo "" >> lib/main.dart
+git add lib/main.dart
+git commit -m "Force trigger build"
+git push -f origin main

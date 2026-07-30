@@ -1,3 +1,4 @@
+import 'package:image_cropper/image_cropper.dart';
 import 'dart:ui';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'dart:io';
@@ -139,6 +140,24 @@ class TimeOfWarScreen extends StatefulWidget {
 }
 
 class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
+
+  Future<String?> _cropImage(String path) async {
+    final cropped = await ImageCropper().cropImage(
+      sourcePath: path,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Кадрування фону 1:1',
+          toolbarColor: const Color(0xFF212121),
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: true,
+        ),
+      ],
+    );
+    return cropped?.path;
+  }
+
   bool _show2022 = true;
   bool _show2014 = false;
   bool _showHour = true;
@@ -372,7 +391,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      setState(() => _imagePath = pickedFile.path);
+      setState(() => _imagePath = (await _cropImage(pickedFile.path) ?? pickedFile.path));
       _saveSetting('imagePath', pickedFile.path);
     }
   }
