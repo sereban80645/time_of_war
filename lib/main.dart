@@ -391,7 +391,8 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      setState(() => _imagePath = (await _cropImage(pickedFile.path) ?? pickedFile.path));
+      String? cropped = await _cropImage(pickedFile.path);
+      setState(() => _imagePath = (cropped ?? pickedFile.path));
       _saveSetting('imagePath', pickedFile.path);
     }
   }
