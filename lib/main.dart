@@ -76,7 +76,7 @@ class TimeOfWarWidgetRender extends StatelessWidget {
               ..strokeWidth = strokeWidth
               ..color = strokeColor,
           ),
-        , maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
+        ),
         Text(
           text,
           style: TextStyle(
@@ -84,7 +84,7 @@ class TimeOfWarWidgetRender extends StatelessWidget {
             fontWeight: FontWeight.bold,
             color: textColor,
           ),
-        , maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
+        ),
       ],
     );
   }
@@ -92,7 +92,7 @@ class TimeOfWarWidgetRender extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 200,
+      width: 400,
       alignment: Alignment.center,
           decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(56),
@@ -117,12 +117,12 @@ class TimeOfWarWidgetRender extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (show2022) ...[
-              Text("Повномасштабна війна:", softWrap: false, style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500), maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
+              Text("Повномасштабна війна:", softWrap: false, softWrap: false, style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500)),
               _buildOutlinedText(time2022),
             ],
             if (show2014) ...[
               if (show2022) const SizedBox(height: 20),
-              Text("Війна з 2014 року:", softWrap: false, style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500), maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
+              Text("Війна з 2014 року:", softWrap: false, softWrap: false, style: TextStyle(color: Colors.white70, fontSize: fontSize * 0.5, fontWeight: FontWeight.w500)),
               _buildOutlinedText(time2014),
             ],
           ],
@@ -268,7 +268,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           imagePath: _imagePath,
         ),
         key: 'widget_image',
-        logicalSize: const Size(800, 800),
+        logicalSize: const Size(400, 400),
       );
 
       await HomeWidget.updateWidget(name: 'WidgetProvider', androidName: 'WidgetProvider');
@@ -334,8 +334,8 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     final strokeColor = Color.fromRGBO(_sr.toInt(), _sg.toInt(), _sb.toInt(), 1.0);
     return Stack(
       children: [
-        Text(text, style: TextStyle(fontSize: _fontSize, fontWeight: FontWeight.bold, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = _strokeWidth..color = strokeColor), maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
-        Text(text, style: TextStyle(fontSize: _fontSize, fontWeight: FontWeight.bold, color: textColor), maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
+        Text(text, style: TextStyle(fontSize: _fontSize, fontWeight: FontWeight.bold, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = _strokeWidth..color = strokeColor)),
+        Text(text, style: TextStyle(fontSize: _fontSize, fontWeight: FontWeight.bold, color: textColor)),
       ],
     );
   }
@@ -349,10 +349,10 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-          const Text("Прев'ю віджета:", style: TextStyle(color: Colors.grey, fontSize: 12), maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
+          const Text("Прев'ю віджета:", style: TextStyle(color: Colors.grey, fontSize: 12)),
           const SizedBox(height: 6),
           Container(
-            width: 200,
+            width: 400,
             alignment: Alignment.center,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),
@@ -370,12 +370,12 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
                   if (_show2022) ...[
-                    const Text("Повномасштабна війна:", softWrap: false, style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500), maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
+                    const Text("Повномасштабна війна:", softWrap: false, softWrap: false, style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
                     _buildOutlinedText(_calculateTimeDifference(_date2022Start)),
                   ],
                   if (_show2014) ...[
                     if (_show2022) const SizedBox(height: 10),
-                    const Text("Війна з 2014 року:", softWrap: false, style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500), maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
+                    const Text("Війна з 2014 року:", softWrap: false, softWrap: false, style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
                     _buildOutlinedText(_calculateTimeDifference(_date2014Start)),
                   ],
                 ],
@@ -403,7 +403,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Час Війни", maxLines: 1, softWrap: false, overflow: TextOverflow.visible), elevation: 0, backgroundColor: Colors.transparent,
+          title: const Text("Час Війни"), elevation: 0, backgroundColor: Colors.transparent,
           bottom: const TabBar(indicatorColor: Colors.deepPurpleAccent, tabs: [Tab(text: "Головне"), Tab(text: "Кольори"), Tab(text: "Контур")]),
         ),
         body: Column(
@@ -428,17 +428,17 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        SwitchListTile(title: const Text("Війна 2022", maxLines: 1, softWrap: false, overflow: TextOverflow.visible), value: _show2022, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _show2022 = v); _saveSetting('show2022', v); }),
-        SwitchListTile(title: const Text("Війна 2014", softWrap: false, maxLines: 1, softWrap: false, overflow: TextOverflow.visible), value: _show2014, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _show2014 = v); _saveSetting('show2014', v); }),
-        SwitchListTile(title: const Text("Показ годин", maxLines: 1, softWrap: false, overflow: TextOverflow.visible), value: _showHour, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _showHour = v); _saveSetting('showHour', v); }),
-        SwitchListTile(title: const Text("Облік в днях", maxLines: 1, softWrap: false, overflow: TextOverflow.visible), value: _showDaysOnly, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _showDaysOnly = v); _saveSetting('showDaysOnly', v); }),
+        SwitchListTile(title: const Text("Війна 2022"), value: _show2022, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _show2022 = v); _saveSetting('show2022', v); }),
+        SwitchListTile(title: const Text("Війна 2014", softWrap: false), value: _show2014, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _show2014 = v); _saveSetting('show2014', v); }),
+        SwitchListTile(title: const Text("Показ годин"), value: _showHour, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _showHour = v); _saveSetting('showHour', v); }),
+        SwitchListTile(title: const Text("Облік в днях"), value: _showDaysOnly, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _showDaysOnly = v); _saveSetting('showDaysOnly', v); }),
         const Divider(color: Colors.white10),
-        const Text("Прозорість фону", style: TextStyle(fontSize: 14), maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
+        const Text("Прозорість фону", style: TextStyle(fontSize: 14)),
         Slider(value: _opacity, min: 0.0, max: 1.0, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _opacity = v); _saveSetting('opacity', v); }),
-        const Text("Розмір тексту", style: TextStyle(fontSize: 14), maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
+        const Text("Розмір тексту", style: TextStyle(fontSize: 14)),
         Slider(value: _fontSize, min: 12.0, max: 40.0, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _fontSize = v); _saveSetting('fontSize', v); }),
         const SizedBox(height: 10),
-        ElevatedButton.icon(onPressed: _pickImage, icon: const Icon(Icons.image), label: const Text("Вибрати ФОТО", maxLines: 1, softWrap: false, overflow: TextOverflow.visible), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2D2D2D), padding: const EdgeInsets.symmetric(vertical: 14))),
+        ElevatedButton.icon(onPressed: _pickImage, icon: const Icon(Icons.image), label: const Text("Вибрати ФОТО"), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2D2D2D), padding: const EdgeInsets.symmetric(vertical: 14))),
       ],
     );
   }
@@ -447,10 +447,10 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text("Колір тексту", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent), maxLines: 1, softWrap: false, overflow: TextOverflow.visible), const SizedBox(height: 8),
+        const Text("Колір тексту", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent)), const SizedBox(height: 8),
         _buildRGBSliders(_tr, _tg, _tb, (r, g, b) { setState(() { _tr = r; _tg = g; _tb = b; }); _saveSetting('tr', r); _saveSetting('tg', g); _saveSetting('tb', b); }),
         const Divider(color: Colors.white10, height: 32),
-        const Text("Колір фону", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent), maxLines: 1, softWrap: false, overflow: TextOverflow.visible), const SizedBox(height: 8),
+        const Text("Колір фону", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent)), const SizedBox(height: 8),
         _buildRGBSliders(_br, _bg, _bb, (r, g, b) { setState(() { _br = r; _bg = g; _bb = b; }); _saveSetting('br', r); _saveSetting('bg', g); _saveSetting('bb', b); }),
       ],
     );
@@ -460,10 +460,10 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text("Колір контуру", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent), maxLines: 1, softWrap: false, overflow: TextOverflow.visible), const SizedBox(height: 8),
+        const Text("Колір контуру", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent)), const SizedBox(height: 8),
         _buildRGBSliders(_sr, _sg, _sb, (r, g, b) { setState(() { _sr = r; _sg = g; _sb = b; }); _saveSetting('sr', r); _saveSetting('sg', g); _saveSetting('sb', b); }),
         const Divider(color: Colors.white10, height: 32),
-        const Text("Товщина контуру", style: TextStyle(fontSize: 14), maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
+        const Text("Товщина контуру", style: TextStyle(fontSize: 14)),
         Slider(value: _strokeWidth, min: 0.0, max: 8.0, activeColor: Colors.deepPurpleAccent, onChanged: (v) { setState(() => _strokeWidth = v); _saveSetting('strokeWidth', v); }),
       ],
     );
@@ -475,9 +475,9 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-      Row(children: [const SizedBox(width: 20, child: Text("R", style: TextStyle(color: Colors.red), maxLines: 1, softWrap: false, overflow: TextOverflow.visible)), Expanded(child: Slider(value: r, min: 0, max: 255, activeColor: Colors.red, onChanged: (v) => onChanged(v, g, b)))]),
-      Row(children: [const SizedBox(width: 20, child: Text("G", style: TextStyle(color: Colors.green), maxLines: 1, softWrap: false, overflow: TextOverflow.visible)), Expanded(child: Slider(value: g, min: 0, max: 255, activeColor: Colors.green, onChanged: (v) => onChanged(r, v, b)))]),
-      Row(children: [const SizedBox(width: 20, child: Text("B", style: TextStyle(color: Colors.blue), maxLines: 1, softWrap: false, overflow: TextOverflow.visible)), Expanded(child: Slider(value: b, min: 0, max: 255, activeColor: Colors.blue, onChanged: (v) => onChanged(r, g, v)))]),
+      Row(children: [const SizedBox(width: 20, child: Text("R", style: TextStyle(color: Colors.red))), Expanded(child: Slider(value: r, min: 0, max: 255, activeColor: Colors.red, onChanged: (v) => onChanged(v, g, b)))]),
+      Row(children: [const SizedBox(width: 20, child: Text("G", style: TextStyle(color: Colors.green))), Expanded(child: Slider(value: g, min: 0, max: 255, activeColor: Colors.green, onChanged: (v) => onChanged(r, v, b)))]),
+      Row(children: [const SizedBox(width: 20, child: Text("B", style: TextStyle(color: Colors.blue))), Expanded(child: Slider(value: b, min: 0, max: 255, activeColor: Colors.blue, onChanged: (v) => onChanged(r, g, v)))]),
     ]);
   }
 }
