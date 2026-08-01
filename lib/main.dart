@@ -1,32 +1,43 @@
+import 'package:workmanager/workmanager.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:ui';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+
 import 'package:home_widget/home_widget.dart';
 
 
 
+
 @pragma('vm:entry-point')
-void updateWidgetData() async {
-  final now = DateTime.now();
-  
-  final diff2022 = now.difference(DateTime(2022, 2, 24, 0, 0, 0));
-  final diff2014 = now.difference(DateTime(2014, 2, 20, 0, 0, 0)); // 20 лютого - початок окупації Криму
-  
-  await HomeWidget.saveWidgetData('text_2022', '${diff2022.inDays}д. ${diff2022.inHours % 24}г.');
-  await HomeWidget.saveWidgetData('text_2014', '${diff2014.inDays}д. ${diff2014.inHours % 24}г.');
-  
-  await HomeWidget.updateWidget(name: 'TimeOfWarWidgetProvider', iOSName: 'TimeOfWarWidget');
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    final now = DateTime.now();
+    final diff2022 = now.difference(DateTime(2022, 2, 24));
+    final diff2014 = now.difference(DateTime(2014, 4, 14));
+    
+    await HomeWidget.saveWidgetData('text_2022', '${diff2022.inDays}д. ${diff2022.inHours % 24}г.');
+    await HomeWidget.saveWidgetData('text_2014', '${diff2014.inDays}д. ${diff2014.inHours % 24}г.');
+    
+    await HomeWidget.updateWidget(name: 'TimeOfWarWidgetProvider', iOSName: 'TimeOfWarWidget');
+    return Future.value(true);
+  });
 }
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+    WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+  Workmanager().registerPeriodicTask(
+    "time_of_war_update",
+    "updateWidgetTask",
+    frequency: const Duration(hours: 1),
+    existingWorkPolicy: ExistingWorkPolicy.replace
+  );
   await AndroidAlarmManager.initialize();
   
   // Примусовий точний будильник системи
@@ -39,14 +50,28 @@ void main() async {
     rescheduleOnReboot: true,
   );
 
-  WidgetsFlutterBinding.ensureInitialized();
+    WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+  Workmanager().registerPeriodicTask(
+    "time_of_war_update",
+    "updateWidgetTask",
+    frequency: const Duration(hours: 1),
+    existingWorkPolicy: ExistingWorkPolicy.replace
+  );
   await AndroidAlarmManager.initialize();
   DateTime now = DateTime.now();
   DateTime nextMidnight = DateTime(now.year, now.month, now.day).add(const Duration(days: 1, minutes: 1));
   await AndroidAlarmManager.periodic(const Duration(days: 1), 1, backgroundUpdate, startAt: nextMidnight, exact: true, wakeup: true);
   await AndroidAlarmManager.periodic(const Duration(hours: 1), 2, backgroundUpdate, exact: true, wakeup: true);
 
-  WidgetsFlutterBinding.ensureInitialized();
+    WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+  Workmanager().registerPeriodicTask(
+    "time_of_war_update",
+    "updateWidgetTask",
+    frequency: const Duration(hours: 1),
+    existingWorkPolicy: ExistingWorkPolicy.replace
+  );
   runApp(const MyApp());
 }
 
@@ -526,7 +551,14 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
 @pragma('vm:entry-point')
 void backgroundUpdate() async {
-  WidgetsFlutterBinding.ensureInitialized();
+    WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+  Workmanager().registerPeriodicTask(
+    "time_of_war_update",
+    "updateWidgetTask",
+    frequency: const Duration(hours: 1),
+    existingWorkPolicy: ExistingWorkPolicy.replace
+  );
   DartPluginRegistrant.ensureInitialized(); 
   final prefs = await SharedPreferences.getInstance();
   
