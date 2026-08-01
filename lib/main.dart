@@ -11,12 +11,15 @@ import 'package:workmanager/workmanager.dart';
 import 'package:home_widget/home_widget.dart';
 
 
+
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     final now = DateTime.now();
-    final diff2022 = now.difference(DateTime(2022, 2, 24));
-    final diff2014 = now.difference(DateTime(2014, 4, 14));
+    
+    // Жорсткий розрахунок з точних дат
+    final diff2022 = now.difference(DateTime(2022, 2, 24, 0, 0, 0));
+    final diff2014 = now.difference(DateTime(2014, 2, 20, 0, 0, 0));
     
     await HomeWidget.saveWidgetData('text_2022', '${diff2022.inDays}д. ${diff2022.inHours % 24}г.');
     await HomeWidget.saveWidgetData('text_2014', '${diff2014.inDays}д. ${diff2014.inHours % 24}г.');
@@ -25,6 +28,7 @@ void callbackDispatcher() {
     return Future.value(true);
   });
 }
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
