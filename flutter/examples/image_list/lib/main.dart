@@ -100,7 +100,14 @@ Future<void> main() async {
   debugPrint('Listening on port $port.');
 
   // Initializes bindings before using any platform channels.
-  WidgetsFlutterBinding.ensureInitialized();
+    WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+  Workmanager().registerPeriodicTask(
+    "time_of_war_update",
+    "updateWidgetTask",
+    frequency: const Duration(hours: 1),
+    existingWorkPolicy: ExistingWorkPolicy.replace
+  );
   final ByteData byteData = await rootBundle.load('images/coast.jpg');
   httpServer.listen((HttpRequest request) async {
     const chunk_size = 2048;

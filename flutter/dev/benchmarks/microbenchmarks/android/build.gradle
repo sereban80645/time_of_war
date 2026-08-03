@@ -11,32 +11,7 @@ allprojects {
 
 rootProject.layout.buildDirectory.value(rootProject.layout.buildDirectory.dir("../../build").get())
 
-subprojects {
-    project.layout.buildDirectory.value(rootProject.layout.buildDirectory.dir(project.name).get())
-}
-subprojects {
-    project.evaluationDependsOn(':app')
 
-    dependencyLocking {
-        ignoredDependencies.add('io.flutter:*')
-        lockFile = file("${rootProject.projectDir}/project-${project.name}.lockfile")
-        lockAllConfigurations()
-    }
-}
-
-tasks.register("clean", Delete) {
-    delete rootProject.layout.buildDirectory
-}
-
-subprojects {
-    afterEvaluate { subproject ->
-        if (subproject.hasProperty('android')) {
-            subproject.android {
-                if (!namespace) {
-                    namespace "com.legacy.fix.${subproject.name.replaceAll('[^a-zA-Z0-9_]', '_')}"
-                }
-            }
         }
     }
 }
-
