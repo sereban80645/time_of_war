@@ -7,7 +7,7 @@
 // See dev/tools/bin/generate_gradle_lockfiles.dart.
 
 buildscript {
-    ext.kotlin_version = '2.2.0'
+    ext.kotlin_version = '1.9.24'
     repositories {
         google()
         mavenCentral()
