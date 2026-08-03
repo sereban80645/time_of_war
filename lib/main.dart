@@ -1,5 +1,4 @@
 import 'package:workmanager/workmanager.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'dart:ui';
 
 import 'dart:io';
@@ -185,7 +184,7 @@ class TimeOfWarScreen extends StatefulWidget {
 class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
   Future<String?> _cropImage(String path) async {
-    final cropped = await ImageCropper().cropImage(
+    final cropped = await null.cropImage(
       sourcePath: path,
       aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
       uiSettings: [
