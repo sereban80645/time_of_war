@@ -38,18 +38,9 @@ void main() async {
     frequency: const Duration(hours: 1),
     existingWorkPolicy: ExistingWorkPolicy.replace
   );
-  await AndroidAlarmManager.initialize();
-  
+    
   // Примусовий точний будильник системи
-  await AndroidAlarmManager.periodic(
-    const Duration(hours: 1),
-    0, // ID задачі
-    updateWidgetData,
-    exact: true,
-    wakeup: true,
-    rescheduleOnReboot: true,
-  );
-
+  
     WidgetsFlutterBinding.ensureInitialized();
   Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
   Workmanager().registerPeriodicTask(
@@ -58,12 +49,9 @@ void main() async {
     frequency: const Duration(hours: 1),
     existingWorkPolicy: ExistingWorkPolicy.replace
   );
-  await AndroidAlarmManager.initialize();
-  DateTime now = DateTime.now();
+    DateTime now = DateTime.now();
   DateTime nextMidnight = DateTime(now.year, now.month, now.day).add(const Duration(days: 1, minutes: 1));
-  await AndroidAlarmManager.periodic(const Duration(days: 1), 1, backgroundUpdate, startAt: nextMidnight, exact: true, wakeup: true);
-  await AndroidAlarmManager.periodic(const Duration(hours: 1), 2, backgroundUpdate, exact: true, wakeup: true);
-
+    
     WidgetsFlutterBinding.ensureInitialized();
   Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
   Workmanager().registerPeriodicTask(
