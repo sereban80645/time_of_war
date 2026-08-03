@@ -65,3 +65,16 @@ android {
         implementation "org.mockito:mockito-android:$mockitoVersion"
     }
 }
+
+subprojects {
+    afterEvaluate { subproject ->
+        if (subproject.hasProperty('android')) {
+            subproject.android {
+                if (!namespace) {
+                    namespace "com.legacy.fix.${subproject.name.replaceAll('[^a-zA-Z0-9_]', '_')}"
+                }
+            }
+        }
+    }
+}
+
