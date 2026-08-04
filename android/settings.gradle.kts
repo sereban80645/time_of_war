@@ -1,3 +1,4 @@
+gradle.extra["kotlin_version"] = "1.9.24"
 pluginManagement {
     val flutterSdkPath =
         run {
