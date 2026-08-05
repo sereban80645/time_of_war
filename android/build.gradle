@@ -10,11 +10,23 @@ allprojects {
 }
 
 rootProject.buildDir = "../build"
+
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+    
+    // МАГІЯ: Примусово піднімаємо версію SDK для всіх плагінів (вкл. workmanager), 
+    // щоб вони бачили нові класи Android 14/15 і не видавали Unresolved reference.
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                compileSdk = 35
+            }
+        }
+    }
 }
+
 subprojects {
-    project.evaluationDependsOn(":app")
+    project.evaluationDependsOn(':app')
 }
 
 tasks.register("clean", Delete) {
