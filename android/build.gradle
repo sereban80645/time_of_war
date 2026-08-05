@@ -18,27 +18,25 @@ subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 
-subprojects {
-    project.evaluationDependsOn(':app')
-}
-
+// 1. СПОЧАТКУ реєструємо правило для всіх плагінів
 subprojects { subproject ->
-    // КЛЮЧОВИЙ ФІКС: Ігноруємо головний модуль 'app', оновлюємо ТІЛЬКИ плагіни
-    if (subproject.name != 'app') {
-        subproject.afterEvaluate {
-            if (subproject.hasProperty('android')) {
-                subproject.android {
-                    compileSdkVersion 35
-                    buildToolsVersion "35.0.0"
-                    
-                    compileOptions {
-                        sourceCompatibility JavaVersion.VERSION_17
-                        targetCompatibility JavaVersion.VERSION_17
-                    }
+    subproject.afterEvaluate {
+        if (subproject.hasProperty('android')) {
+            subproject.android {
+                compileSdkVersion 35
+                buildToolsVersion "35.0.0"
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
                 }
             }
         }
     }
+}
+
+// 2. І ТІЛЬКИ ПОТІМ даємо команду на завантаження (evaluation)
+subprojects {
+    project.evaluationDependsOn(':app')
 }
 
 tasks.register("clean", Delete) {
