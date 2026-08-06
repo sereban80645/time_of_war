@@ -17,6 +17,16 @@ rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
+
+subprojects { subproject ->
+    subproject.plugins.withId('com.android.library') {
+        subproject.android {
+            compileSdkVersion 35
+            buildToolsVersion "35.0.0"
+        }
+    }
+}
+
 subprojects {
     project.evaluationDependsOn(':app')
 }
