@@ -6,6 +6,13 @@ buildscript {
     }
 }
 
+ext {
+    compileSdkVersion = 35
+    targetSdkVersion = 35
+    minSdkVersion = 21
+    buildToolsVersion = "35.0.0"
+}
+
 allprojects {
     repositories {
         google()
@@ -18,23 +25,16 @@ subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 
-// 1. СПОЧАТКУ реєструємо правило для всіх плагінів
+// Застосовуємо SDK 35 під час моменту ініціалізації кожного плагіна
 subprojects { subproject ->
-    subproject.afterEvaluate {
-        if (subproject.hasProperty('android')) {
-            subproject.android {
-                compileSdkVersion 35
-                buildToolsVersion "35.0.0"
-                compileOptions {
-                    sourceCompatibility JavaVersion.VERSION_17
-                    targetCompatibility JavaVersion.VERSION_17
-                }
-            }
+    subproject.pluginManager.withPlugin('com.android.library') {
+        subproject.android {
+            compileSdkVersion 35
+            buildToolsVersion "35.0.0"
         }
     }
 }
 
-// 2. І ТІЛЬКИ ПОТІМ даємо команду на завантаження (evaluation)
 subprojects {
     project.evaluationDependsOn(':app')
 }
