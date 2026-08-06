@@ -6,13 +6,6 @@ buildscript {
     }
 }
 
-ext {
-    compileSdkVersion = 35
-    targetSdkVersion = 35
-    minSdkVersion = 21
-    buildToolsVersion = "35.0.0"
-}
-
 allprojects {
     repositories {
         google()
@@ -24,17 +17,6 @@ rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
-
-// Застосовуємо SDK 35 під час моменту ініціалізації кожного плагіна
-subprojects { subproject ->
-    subproject.pluginManager.withPlugin('com.android.library') {
-        subproject.android {
-            compileSdkVersion 35
-            buildToolsVersion "35.0.0"
-        }
-    }
-}
-
 subprojects {
     project.evaluationDependsOn(':app')
 }
