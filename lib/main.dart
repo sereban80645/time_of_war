@@ -1,3 +1,26 @@
+@pragma('vm:entry-point')
+void backgroundUpdate() async {
+  final prefs = await SharedPreferences.getInstance();
+  final showHours = prefs.getBool('show_hours') ?? false;
+
+  final now = DateTime.now();
+  final date2014 = DateTime(2014, 2, 20, 0, 0);
+  final date2022 = DateTime(2022, 2, 24, 0, 0);
+
+  final diff2014 = now.difference(date2014);
+  final diff2022 = now.difference(date2022);
+
+  if (showHours) {
+    await HomeWidget.saveWidgetData('text_2014', '${diff2014.inDays} дн. ${diff2014.inHours % 24} год.');
+    await HomeWidget.saveWidgetData('text_2022', '${diff2022.inDays} дн. ${diff2022.inHours % 24} год.');
+  } else {
+    await HomeWidget.saveWidgetData('text_2014', '${diff2014.inDays}');
+    await HomeWidget.saveWidgetData('text_2022', '${diff2022.inDays}');
+  }
+
+  await HomeWidget.updateWidget(name: 'TimeOfWarWidgetProvider', androidName: 'TimeOfWarWidgetProvider');
+}
+
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:ui';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
@@ -12,42 +35,23 @@ import 'package:home_widget/home_widget.dart';
 
 
 
-@pragma('vm:entry-point')
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    final now = DateTime.now();
-    
-    // Жорсткий розрахунок з точних дат
-    final diff2022 = now.difference(DateTime(2022, 2, 24, 0, 0, 0));
-    final diff2014 = now.difference(DateTime(2014, 2, 20, 0, 0, 0));
-    
-    await HomeWidget.saveWidgetData('text_2022', '${diff2022.inDays}д. ${diff2022.inHours % 24}г.');
-    await HomeWidget.saveWidgetData('text_2014', '${diff2014.inDays}д. ${diff2014.inHours % 24}г.');
-    
-    await HomeWidget.updateWidget(name: 'TimeOfWarWidgetProvider', iOSName: 'TimeOfWarWidget');
-    return Future.value(true);
-  });
-}
-
-
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
-  Workmanager().registerPeriodicTask(
-    "time_of_war_update",
-    "updateWidgetTask",
-    frequency: const Duration(hours: 1),
-    existingWorkPolicy: ExistingWorkPolicy.replace
-  );
-
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidAlarmManager.initialize();
   DateTime now = DateTime.now();
-  DateTime nextMidnight = DateTime(now.year, now.month, now.day).add(const Duration(days: 1, minutes: 1));
-  await AndroidAlarmManager.periodic(const Duration(days: 1), 1, backgroundUpdate, startAt: nextMidnight, exact: true, wakeup: true);
-  await AndroidAlarmManager.periodic(const Duration(hours: 1), 2, backgroundUpdate, exact: true, wakeup: true);
-
-  WidgetsFlutterBinding.ensureInitialized();
+  DateTime nextTrigger = DateTime(now.year, now.month, now.day, now.hour, 2);
+  if (nextTrigger.isBefore(now)) {
+    nextTrigger = nextTrigger.add(const Duration(hours: 1));
+  }
+  await AndroidAlarmManager.periodic(
+    const Duration(hours: 1),
+    0,
+    backgroundUpdate,
+    startAt: nextTrigger,
+    exact: true,
+    wakeup: true,
+    rescheduleOnReboot: true,
+  );
   runApp(const MyApp());
 }
 
@@ -524,32 +528,5 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
 @pragma('vm:entry-point')
 
-
-@pragma('vm:entry-point')
-void backgroundUpdate() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  DartPluginRegistrant.ensureInitialized(); 
-  final prefs = await SharedPreferences.getInstance();
-  
-  int currentHour = DateTime.now().hour;
-  int h2022 = (currentHour - 5 + 24) % 24;
-  int h2014 = (currentHour - 12 + 24) % 24;
-  
-  for (String key in prefs.getKeys()) {
-    dynamic val = prefs.get(key);
-    if (val is String && val.contains('г.')) {
-      if (val.contains('12р.') || val.contains('453')) {
-        String newVal = val.replaceAll(RegExp(r'\d+г\.'), '${h2014}г.');
-        await prefs.setString(key, newVal);
-        await HomeWidget.saveWidgetData(key, newVal);
-      } else if (val.contains('4р.') || val.contains('160')) {
-        String newVal = val.replaceAll(RegExp(r'\d+г\.'), '${h2022}г.');
-        await prefs.setString(key, newVal);
-        await HomeWidget.saveWidgetData(key, newVal);
-      }
-    }
-  }
-  await HomeWidget.updateWidget(name: "WidgetProvider", androidName: "WidgetProvider");
-}
 
 // Force trigger build
