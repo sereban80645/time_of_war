@@ -527,17 +527,3 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     ]);
   }
 }
-
-
-@pragma('vm:entry-point')
-
-@pragma('vm:entry-point')
-
-@pragma('vm:entry-point')
-
-@pragma('vm:entry-point')
-
-@pragma('vm:entry-point')
-
-
-// Force trigger build
