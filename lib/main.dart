@@ -35,17 +35,6 @@ void backgroundUpdate() async {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidAlarmManager.initialize();
@@ -527,3 +516,17 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     ]);
   }
 }
+
+
+@pragma('vm:entry-point')
+
+@pragma('vm:entry-point')
+
+@pragma('vm:entry-point')
+
+@pragma('vm:entry-point')
+
+@pragma('vm:entry-point')
+
+
+// Force trigger build
