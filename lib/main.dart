@@ -42,7 +42,12 @@ void main() async {
   DateTime now = DateTime.now();
   DateTime nextMidnight = DateTime(now.year, now.month, now.day).add(const Duration(days: 1, minutes: 1));
   await AndroidAlarmManager.periodic(const Duration(days: 1), 1, backgroundUpdate, startAt: nextMidnight, exact: true, wakeup: true);
-  await AndroidAlarmManager.periodic(const Duration(hours: 1), 2, backgroundUpdate, exact: true, wakeup: true);
+  DateTime nowForHour = DateTime.now();
+  DateTime nextHour = DateTime(nowForHour.year, nowForHour.month, nowForHour.day, nowForHour.hour).add(const Duration(hours: 1, minutes: 1));
+  if (nextHour.isBefore(nowForHour)) {
+    nextHour = nextHour.add(const Duration(hours: 1));
+  }
+  await AndroidAlarmManager.periodic(const Duration(hours: 1), 2, backgroundUpdate, startAt: nextHour, exact: true, wakeup: true);
 
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
