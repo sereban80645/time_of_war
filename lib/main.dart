@@ -315,7 +315,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
     if (_showDaysOnly) {
       final difference = now.difference(startDate);
-      int totalDays = difference.inDays + 1; 
+      int totalDays = difference.inDays - 1; 
       int hours = now.hour - startDate.hour;
       if (hours < 0) hours += 24;
 
