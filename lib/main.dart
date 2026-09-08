@@ -94,10 +94,7 @@ class TimeOfWarWidgetRender extends StatelessWidget {
         borderRadius: BorderRadius.circular(56),
         color: imagePath == null ? bgColor : null,
         image: imagePath != null
-            ? DecorationImage(
-                image: FileImage(File(imagePath!)),
-                fit: BoxFit.cover,
-              )
+            ? DecorationImage(image: FileImage(File(imagePath!)), fit: BoxFit.cover, opacity: 1.0 - opacity)
             : null,
       ),
       child: Container(
@@ -318,7 +315,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
   }
 
   Widget _buildWidgetPreview() {
-    final bgColor = Color.fromRGBO(_br.toInt(), _bg.toInt(), _bb.toInt(), _opacity);
+    final bgColor = Color.fromRGBO(_br.toInt(), _bg.toInt(), _bb.toInt(), 1.0).withOpacity(1.0 - _opacity);
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Column(
@@ -331,7 +328,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),
               color: _imagePath == null ? bgColor : null,
-              image: _imagePath != null ? DecorationImage(image: FileImage(File(_imagePath!)), fit: BoxFit.cover) : null,
+              image: _imagePath != null ? DecorationImage(image: FileImage(File(_imagePath!)), fit: BoxFit.cover, opacity: 1.0 - _opacity) : null,
               border: Border.all(color: Colors.white10, width: 1),
             ),
             child: Container(
