@@ -152,7 +152,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
   Timer? _debounce;
 
   final DateTime _date2022Start = DateTime(2022, 2, 24, 5, 0); 
-  final DateTime _date2014Start = DateTime(2014, 2, 20, 0, 0); 
+  final DateTime _date2014Start = DateTime(2014, 2, 20, 12, 0); 
 
   @override
   void initState() {
@@ -462,7 +462,7 @@ void backgroundUpdate() async {
   
   DateTime now = DateTime.now();
   DateTime start2022 = DateTime(2022, 2, 24);
-  DateTime start2014 = DateTime(2014, 2, 20);
+  DateTime start2014 = DateTime(2014, 2, 20, 12, 0);
   
   int d2022 = now.difference(start2022).inDays;
   int h2022 = now.difference(start2022).inHours % 24;
