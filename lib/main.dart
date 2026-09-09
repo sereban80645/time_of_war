@@ -256,14 +256,40 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
     if (_showDaysOnly) {
       final difference = now.difference(startDate);
-      int totalDays = difference.inDays - 1; 
+      int totalDays = difference.inDays;
       int hours = now.hour - startDate.hour;
-      if (hours < 0) hours += 24;
-
+      if (hours < 0) {
+        totalDays--;
+        hours += 24;
+      }
       String output = "${totalDays}д.";
       if (_showHour) output += " ${hours}г.";
       return output;
     } else {
+      int years = now.year - startDate.year;
+      int months = now.month - startDate.month;
+      int days = now.day - startDate.day;
+      int hours = now.hour - startDate.hour;
+
+      if (hours < 0) {
+        days--;
+        hours += 24;
+      }
+      if (days < 0) {
+        months--;
+        final prevMonth = DateTime(now.year, now.month, 0);
+        days += prevMonth.day;
+      }
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+
+      String output = "${years}р. ${months}міс. ${days}д.";
+      if (_showHour) output += " ${hours}г.";
+      return output;
+    }
+  } else {
       int years = now.year - startDate.year;
       int months = now.month - startDate.month;
       int days = now.day - startDate.day;
