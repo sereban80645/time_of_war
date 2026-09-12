@@ -133,7 +133,7 @@ class TimeOfWarWidgetRender extends StatelessWidget {
         image: imagePath != null
             ? DecorationImage(
                 image: FileImage(File(imagePath!)),
-                fit: BoxFit.cover, opacity: opacity)
+                fit: BoxFit.fill, opacity: opacity)
             : null,
       ),
       child: Container(
@@ -297,7 +297,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           imagePath: _imagePath,
         ),
         key: 'widget_image',
-        logicalSize: Size(800, dynamicHeight),
+        logicalSize: const Size(800, 400),
       );
 
       await HomeWidget.updateWidget(name: 'WidgetProvider', androidName: 'WidgetProvider');
@@ -386,7 +386,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               color: _imagePath == null ? bgColor : null,
-              image: _imagePath != null ? DecorationImage(image: FileImage(File(_imagePath!)), fit: BoxFit.cover, opacity: _opacity) : null,
+              image: _imagePath != null ? DecorationImage(image: FileImage(File(_imagePath!)), fit: BoxFit.fill, opacity: _opacity) : null,
               border: Border.all(color: Colors.white10, width: 1),
             ),
             child: Container(
