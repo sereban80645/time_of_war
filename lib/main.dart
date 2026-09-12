@@ -272,7 +272,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
   Future<void> _updateHomeWidget() async {
     try {
-      final bgColor = Color.fromRGBO(_br.toInt(), _bg.toInt(), _bb.toInt(), 1.0).withOpacity(_opacity);
+      final bgColor = Color.fromRGBO(_br.toInt(), _bg.toInt(), _bb.toInt(), _opacity);
       final textColor = Color.fromRGBO(_tr.toInt(), _tg.toInt(), _tb.toInt(), 1.0);
       final strokeColor = Color.fromRGBO(_sr.toInt(), _sg.toInt(), _sb.toInt(), 1.0);
 
