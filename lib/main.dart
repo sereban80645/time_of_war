@@ -139,7 +139,7 @@ class TimeOfWarWidgetRender extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
           
-        padding: const EdgeInsets.all(0),
+        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -297,7 +297,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           imagePath: _imagePath,
         ),
         key: 'widget_image',
-        logicalSize: const Size(800, 350),
+        logicalSize: Size(800, dynamicHeight),
       );
 
       await HomeWidget.updateWidget(name: 'WidgetProvider', androidName: 'WidgetProvider');
@@ -381,7 +381,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           const Text("Прев'ю віджета:", style: TextStyle(color: Colors.grey, fontSize: 12)),
           const SizedBox(height: 6),
           Container(
-            width: double.infinity, height: double.infinity,
+            width: 400,
             alignment: Alignment.center,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),
@@ -392,7 +392,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
             child: Container(
               alignment: Alignment.center,
           
-              padding: const EdgeInsets.all(0),
+              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
               child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -504,9 +504,9 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-      Row(children: [const SizedBox(width: double.infinity, height: double.infinity, child: Text("R", style: TextStyle(color: Colors.red))), Expanded(child: Slider(value: r, min: 0, max: 255, activeColor: Colors.red, onChanged: (v) => onChanged(v, g, b)))]),
-      Row(children: [const SizedBox(width: double.infinity, height: double.infinity, child: Text("G", style: TextStyle(color: Colors.green))), Expanded(child: Slider(value: g, min: 0, max: 255, activeColor: Colors.green, onChanged: (v) => onChanged(r, v, b)))]),
-      Row(children: [const SizedBox(width: double.infinity, height: double.infinity, child: Text("B", style: TextStyle(color: Colors.blue))), Expanded(child: Slider(value: b, min: 0, max: 255, activeColor: Colors.blue, onChanged: (v) => onChanged(r, g, v)))]),
+      Row(children: [const SizedBox(width: 20, child: Text("R", style: TextStyle(color: Colors.red))), Expanded(child: Slider(value: r, min: 0, max: 255, activeColor: Colors.red, onChanged: (v) => onChanged(v, g, b)))]),
+      Row(children: [const SizedBox(width: 20, child: Text("G", style: TextStyle(color: Colors.green))), Expanded(child: Slider(value: g, min: 0, max: 255, activeColor: Colors.green, onChanged: (v) => onChanged(r, v, b)))]),
+      Row(children: [const SizedBox(width: 20, child: Text("B", style: TextStyle(color: Colors.blue))), Expanded(child: Slider(value: b, min: 0, max: 255, activeColor: Colors.blue, onChanged: (v) => onChanged(r, g, v)))]),
     ]);
   }
 }
