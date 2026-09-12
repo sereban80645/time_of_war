@@ -125,7 +125,7 @@ class TimeOfWarWidgetRender extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 400,
+      width: double.infinity,
       alignment: Alignment.center,
           decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(56),
@@ -139,7 +139,7 @@ class TimeOfWarWidgetRender extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
           
-        padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 40.0),
+        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -297,7 +297,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           imagePath: _imagePath,
         ),
         key: 'widget_image',
-        logicalSize: const Size(400, 400),
+        logicalSize: Size(800, dynamicHeight),
       );
 
       await HomeWidget.updateWidget(name: 'WidgetProvider', androidName: 'WidgetProvider');
