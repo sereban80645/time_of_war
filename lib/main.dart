@@ -128,7 +128,7 @@ class TimeOfWarWidgetRender extends StatelessWidget {
       width: double.infinity,
       alignment: Alignment.center,
           decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(56),
+        borderRadius: BorderRadius.circular(16),
         color: imagePath == null ? bgColor : null,
         image: imagePath != null
             ? DecorationImage(
@@ -139,7 +139,7 @@ class TimeOfWarWidgetRender extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
           
-        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 24.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -384,7 +384,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
             width: 400,
             alignment: Alignment.center,
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(16),
               color: _imagePath == null ? bgColor : null,
               image: _imagePath != null ? DecorationImage(image: FileImage(File(_imagePath!)), fit: BoxFit.cover, opacity: _opacity) : null,
               border: Border.all(color: Colors.white10, width: 1),
@@ -392,7 +392,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
             child: Container(
               alignment: Alignment.center,
           
-              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
               child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
