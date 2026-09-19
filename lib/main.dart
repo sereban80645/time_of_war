@@ -124,8 +124,7 @@ class TimeOfWarWidgetRender extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
+    return Container(width: 800.0, height: 400.0,
       alignment: Alignment.center,
           decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
