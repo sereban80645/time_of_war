@@ -128,7 +128,7 @@ class TimeOfWarWidgetRender extends StatelessWidget {
       alignment: Alignment.center,
           decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: imagePath == null ? bgColor : null,
+        color: bgColor,
         image: imagePath != null
             ? DecorationImage(
                 image: FileImage(File(imagePath!)),
@@ -384,7 +384,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
             alignment: Alignment.center,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              color: _imagePath == null ? bgColor : null,
+              color: bgColor,
               image: _imagePath != null ? DecorationImage(image: FileImage(File(_imagePath!)), fit: BoxFit.fill, opacity: _opacity) : null,
               border: Border.all(color: Colors.white10, width: 1),
             ),
