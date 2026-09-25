@@ -305,13 +305,15 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     }
   }
 
-  String _calculateTimeDifference(DateTime startDate) {
+    String _calculateTimeDifference(DateTime startDate) {
     final now = DateTime.now();
 
     if (_showDaysOnly) {
       final difference = now.difference(startDate);
-      int totalDays = difference.inDays - 1; 
+      int totalDays = difference.inDays;
       int hours = now.hour - startDate.hour;
+      int minutes = now.minute - startDate.minute;
+      if (minutes < 0) hours--;
       if (hours < 0) hours += 24;
 
       String output = "${totalDays}д.";
@@ -322,7 +324,12 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
       int months = now.month - startDate.month;
       int days = now.day - startDate.day;
       int hours = now.hour - startDate.hour;
+      int minutes = now.minute - startDate.minute;
 
+      if (minutes < 0) {
+        hours--;
+        minutes += 60;
+      }
       if (hours < 0) {
         days--;
         hours += 24;
@@ -337,23 +344,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
         months += 12;
       }
 
-      // Додаємо 1 день для відображення поточного дня, який зараз іде
-      days += 1;
-
-      // Коригуємо календарні переповнення днів у місяці
-      final daysInCurrentMonth = DateTime(now.year, now.month + 1, 0).day;
-      if (days > daysInCurrentMonth) {
-        days -= daysInCurrentMonth;
-        months += 1;
-      }
-      if (months > 11) {
-        months -= 12;
-        years += 1;
-      }
-
-      String output = "${years}р. ${months}міс. ${days}д.";
-      if (_showHour) output += " ${hours}г.";
-      return output;
+      return "${years}р. ${months}міс. ${days}д. ${hours}г.";
     }
   }
 
