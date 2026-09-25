@@ -15,8 +15,8 @@ void callbackDispatcher() {
     final now = DateTime.now();
     
     // Жорсткий розрахунок з точних дат
-    final diff2022 = now.difference(DateTime(2022, 2, 24, 0, 0, 0));
-    final diff2014 = now.difference(DateTime(2014, 2, 20, 0, 0, 0));
+    final diff2022 = now.difference(DateTime(2022, 2, 24, 2, 40, 0));
+    final diff2014 = now.difference(DateTime(2014, 2, 20, 12, 0, 0));
     
     await HomeWidget.saveWidgetData('text_2022', '${diff2022.inDays}д. ${diff2022.inHours % 24}г.');
     await HomeWidget.saveWidgetData('text_2014', '${diff2014.inDays}д. ${diff2014.inHours % 24}г.');
@@ -202,7 +202,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
   Timer? _timer;
   Timer? _debounce;
 
-  final DateTime _date2022Start = DateTime(2022, 2, 24, 5, 0); 
+  final DateTime _date2022Start = DateTime(2022, 2, 24, 2, 40); 
   final DateTime _date2014Start = DateTime(2014, 2, 20, 12, 0); 
 
   @override
