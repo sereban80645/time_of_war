@@ -15,17 +15,43 @@ void callbackDispatcher() {
     final now = DateTime.now();
     
     // Жорсткий розрахунок з точних дат
-    final diff2022 = now.difference(DateTime(2022, 2, 24, 2, 40, 0));
-    final diff2014 = now.difference(DateTime(2014, 2, 20, 12, 0, 0));
-    
-    await HomeWidget.saveWidgetData('text_2022', '${diff2022.inDays}д. ${diff2022.inHours % 24}г.');
-    await HomeWidget.saveWidgetData('text_2014', '${diff2014.inDays}д. ${diff2014.inHours % 24}г.');
+    final prefs = await SharedPreferences.getInstance();
+    bool dO = prefs.getBool('showDaysOnly') ?? false;
+    bool sh = prefs.getBool('showHour') ?? true;
+    await HomeWidget.saveWidgetData('text_2022', getGlobalAccurateTime(DateTime(2022, 2, 24, 2, 40), dO, sh));
+    await HomeWidget.saveWidgetData('text_2014', getGlobalAccurateTime(DateTime(2014, 2, 20, 12, 0), dO, sh));
     
     await HomeWidget.updateWidget(name: 'TimeOfWarWidgetProvider', iOSName: 'TimeOfWarWidget');
     return Future.value(true);
   });
 }
 
+
+
+String getGlobalAccurateTime(DateTime startDate, bool showDaysOnly, bool showHour) {
+  final n = DateTime.now();
+  if (showDaysOnly) {
+    int totalDays = n.difference(startDate).inDays;
+    int hours = n.hour - startDate.hour;
+    int minutes = n.minute - startDate.minute;
+    if (minutes < 0) hours--;
+    if (hours < 0) hours += 24;
+    String out = "${totalDays}д.";
+    if (showHour) out += " ${hours}г.";
+    return out;
+  } else {
+    int years = n.year - startDate.year;
+    int months = n.month - startDate.month;
+    int days = n.day - startDate.day;
+    int hours = n.hour - startDate.hour;
+    int minutes = n.minute - startDate.minute;
+    if (minutes < 0) { hours--; minutes += 60; }
+    if (hours < 0) { days--; hours += 24; }
+    if (days < 0) { months--; final pMonth = DateTime(n.year, n.month, 0); days += pMonth.day; }
+    if (months < 0) { years--; months += 12; }
+    return "${years}р. ${months}міс. ${days}д. ${hours}г.";
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -306,46 +332,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
   }
 
     String _calculateTimeDifference(DateTime startDate) {
-    final now = DateTime.now();
-
-    if (_showDaysOnly) {
-      final difference = now.difference(startDate);
-      int totalDays = difference.inDays;
-      int hours = now.hour - startDate.hour;
-      int minutes = now.minute - startDate.minute;
-      if (minutes < 0) hours--;
-      if (hours < 0) hours += 24;
-
-      String output = "${totalDays}д.";
-      if (_showHour) output += " ${hours}г.";
-      return output;
-    } else {
-      int years = now.year - startDate.year;
-      int months = now.month - startDate.month;
-      int days = now.day - startDate.day;
-      int hours = now.hour - startDate.hour;
-      int minutes = now.minute - startDate.minute;
-
-      if (minutes < 0) {
-        hours--;
-        minutes += 60;
-      }
-      if (hours < 0) {
-        days--;
-        hours += 24;
-      }
-      if (days < 0) {
-        months--;
-        final prevMonth = DateTime(now.year, now.month, 0);
-        days += prevMonth.day;
-      }
-      if (months < 0) {
-        years--;
-        months += 12;
-      }
-
-      return "${years}р. ${months}міс. ${days}д. ${hours}г.";
-    }
+    return getGlobalAccurateTime(startDate, _showDaysOnly, _showHour);
   }
 
   Widget _buildOutlinedText(String text) {
@@ -527,11 +514,11 @@ void backgroundUpdate() async {
     dynamic val = prefs.get(key);
     if (val is String && val.contains('г.')) {
       if (val.contains('12р.') || val.contains('453')) {
-        String newVal = val.replaceAll(RegExp(r'\d+г\.'), '${h2014}г.');
+        bool dO = prefs.getBool('showDaysOnly') ?? false; bool sh = prefs.getBool('showHour') ?? true; String newVal = getGlobalAccurateTime(DateTime(2014, 2, 20, 12, 0), dO, sh);
         await prefs.setString(key, newVal);
         await HomeWidget.saveWidgetData(key, newVal);
       } else if (val.contains('4р.') || val.contains('160')) {
-        String newVal = val.replaceAll(RegExp(r'\d+г\.'), '${h2022}г.');
+        bool dO = prefs.getBool('showDaysOnly') ?? false; bool sh = prefs.getBool('showHour') ?? true; String newVal = getGlobalAccurateTime(DateTime(2022, 2, 24, 2, 40), dO, sh);
         await prefs.setString(key, newVal);
         await HomeWidget.saveWidgetData(key, newVal);
       }
