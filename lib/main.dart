@@ -472,6 +472,5 @@ void backgroundUpdate() async {
     }
   }
   
-  await _updateHomeWidget();
   await HomeWidget.updateWidget(name: "WidgetProvider", androidName: "WidgetProvider");
 }
