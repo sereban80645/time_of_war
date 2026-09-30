@@ -509,28 +509,58 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 @pragma('vm:entry-point')
 void backgroundUpdate() async {
   WidgetsFlutterBinding.ensureInitialized();
-  DartPluginRegistrant.ensureInitialized(); 
+  DartPluginRegistrant.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
-  
-  int currentHour = DateTime.now().hour;
-  int h2022 = (currentHour - 5 + 24) % 24;
-  int h2014 = (currentHour - 12 + 24) % 24;
-  
-  for (String key in prefs.getKeys()) {
-    dynamic val = prefs.get(key);
-    if (val is String && val.contains('г.')) {
-      if (val.contains('12р.') || val.contains('453')) {
-        bool dO = prefs.getBool('showDaysOnly') ?? false; bool sh = prefs.getBool('showHour') ?? true; String newVal = getGlobalAccurateTime(DateTime(2014, 2, 20, 12, 0), dO, sh);
-        await prefs.setString(key, newVal);
-        await HomeWidget.saveWidgetData(key, newVal);
-      } else if (val.contains('4р.') || val.contains('160')) {
-        bool dO = prefs.getBool('showDaysOnly') ?? false; bool sh = prefs.getBool('showHour') ?? true; String newVal = getGlobalAccurateTime(DateTime(2022, 2, 24, 2, 40), dO, sh);
-        await prefs.setString(key, newVal);
-        await HomeWidget.saveWidgetData(key, newVal);
-      }
-    }
+
+  bool show2022 = prefs.getBool('show2022') ?? true;
+  bool show2014 = prefs.getBool('show2014') ?? true;
+  bool showDaysOnly = prefs.getBool('showDaysOnly') ?? false;
+  bool showHour = prefs.getBool('showHour') ?? true;
+
+  String time2022 = getGlobalAccurateTime(DateTime(2022, 2, 24, 2, 40), showDaysOnly, showHour);
+  String time2014 = getGlobalAccurateTime(DateTime(2014, 2, 20, 12, 0), showDaysOnly, showHour);
+
+  double fontSize = prefs.getDouble('fontSize') ?? 14.0;
+  double strokeWidth = prefs.getDouble('strokeWidth') ?? 2.0;
+  double opacity = prefs.getDouble('opacity') ?? 0.5;
+
+  int br = prefs.getInt('br') ?? 0;
+  int bg = prefs.getInt('bg') ?? 0;
+  int bb = prefs.getInt('bb') ?? 0;
+
+  int tr = prefs.getInt('tr') ?? 255;
+  int tg = prefs.getInt('tg') ?? 255;
+  int tb = prefs.getInt('tb') ?? 255;
+
+  int sr = prefs.getInt('sr') ?? 0;
+  int sg = prefs.getInt('sg') ?? 0;
+  int sb = prefs.getInt('sb') ?? 0;
+
+  String? imagePath = prefs.getString('imagePath');
+
+  try {
+    await HomeWidget.renderFlutterWidget(
+      TimeOfWarWidgetRender(
+        show2022: show2022,
+        show2014: show2014,
+        time2022: time2022,
+        time2014: time2014,
+        fontSize: fontSize * 2.5,
+        strokeWidth: strokeWidth * 2.5,
+        opacity: opacity,
+        bgColor: Color.fromRGBO(br, bg, bb, opacity),
+        textColor: Color.fromRGBO(tr, tg, tb, 1.0),
+        strokeColor: Color.fromRGBO(sr, sg, sb, 1.0),
+        imagePath: imagePath,
+      ),
+      key: 'widget_image',
+      logicalSize: const Size(800, 400),
+    );
+
+    await HomeWidget.updateWidget(name: 'WidgetProvider', androidName: 'WidgetProvider');
+  } catch (e) {
+    // Помилка рендерингу у фоні
   }
-  await HomeWidget.updateWidget(name: "WidgetProvider", androidName: "WidgetProvider");
 }
 
 // Force trigger build
