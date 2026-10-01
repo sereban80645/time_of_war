@@ -1,500 +1,500 @@
-  flutter_test:
-    sdk: flutter
-  flutter_launcher_icons: ^0.14.1
+    content = re.sub(r"(<ImageView[^>]*?android:layout_height=\")[^\"]+(\")", r"\g<1>match_parent\g<2>", content)
+    
+    # Налаштовуємо масштабування зображення на заповнення (fitXY)
+    if "android:scaleType" in content:
+        content = re.sub(r"android:scaleType=\"[^\"]+\"", "android:scaleType=\"fitXY\"", content)
+    else:
+        content = re.sub(r"(<ImageView)", r"\1\n    android:scaleType=\"fitXY\"", content)
+        
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
 
-flutter_launcher_icons:
-  android: "launcher_icon"
-  image_path: "assets/icon.png"
-  min_sdk_android: 21
-
-flutter:
-  uses-material-design: true
-  assets:
-    - assets/icon.png
-EOF
-
-# 4. Створюємо папку для іконки і копіюємо її туди
-mkdir -p assets
-cp /sdcard/1000219542.png assets/icon.png
-# 5. Оновлюємо залежності, ставимо іконку і збираємо APK
-flutter pub get
-dart run flutter_launcher_icons:main
-flutter build apk --release
-cd /root/Time_of_waR
-flutter clean
-rm -f pubspec.yaml.bak
-cd /root/Time_of_waR
-flutter clean
-rm -f pubspec.yaml.bak pubspec.yaml
-cd /root/Time_of_waR
-cat << 'EOF' > pubspec.yaml
-name: time_of_war
-description: "Time_of_waR application"
-publish_to: 'none'
-version: 1.0.0+1
-
-environment:
-  sdk: '>=3.0.0 <4.0.0'
-
-dependencies:
-  flutter:
-    sdk: flutter
-  shared_preferences: ^2.5.5
-  home_widget: ^0.9.3
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_launcher_icons: ^0.14.1
-
-flutter_launcher_icons:
-  android: "launcher_icon"
-  image_path: "assets/icon.png"
-  min_sdk_android: 21
-
-flutter:
-  uses-material-design: true
-  assets:
-    - assets/icon.png
-EOF
-
-mkdir -p assets
-cp /sdcard/1000219542.png assets/icon.png
-flutter pub get
-dart run flutter_launcher_icons:main
-flutter build apk --release
-rm -f ~/pubspec.yaml ~/pubspec.yaml.bak
-rm -rf ~/assets
-proot-distro login ubuntu
-mkdir -p ~/.proot-distro/installed-rootfs/ubuntu/root/time_of_war/assets
-cp ~/storage/downloads/Ikkon1.png ~/.proot-distro/installed-rootfs/ubuntu/root/time_of_war/assets/icon.png
-proot-distro login ubuntu
-exit
-git push
-# Вхід у середовище Ubuntu (якщо використовуєш стандартний proot-distro)
-proot-distro login ubuntu
-cd ~/projects/time_of_war
-cat << 'EOF' > lib/main.dart
-import 'dart:async';
-import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const TimeOfWarApp());
-}
-
-class TimeOfWarApp extends StatelessWidget {
-  const TimeOfWarApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: const TimerScreen(),
-    );
-  }
-}
-
-class TimerScreen extends StatefulWidget {
-  const TimerScreen({Key? key}) : super(key: key);
-
-  @override
-  State<TimerScreen> createState() => _TimerScreenState();
-}
-
-class _TimerScreenState extends State<TimerScreen> {
-  late Timer _timer;
-  final DateTime startDate2022 = DateTime(2022, 2, 24, 0, 0, 0);
-  final DateTime startDate2014 = DateTime(2014, 4, 14, 0, 0, 0);
-  
-  Duration _duration2022 = Duration.zero;
-  Duration _duration2014 = Duration.zero;
-
-  @override
-  void initState() {
-    super.initState();
-    _updateTime();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _updateTime();
-    });
-  }
-
-  void _updateTime() {
-    final now = DateTime.now();
-    setState(() {
-      _duration2022 = now.difference(startDate2022);
-      _duration2014 = now.difference(startDate2014);
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final int days2022 = _duration2022.inDays;
-    final int hours2022 = _duration2022.inHours % 24;
-
-    final int days2014 = _duration2014.inDays;
-    final int hours2014 = _duration2014.inHours % 24;
-
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Center(
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          decoration: BoxDecoration(
-            color: Colors.grey[900],
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[800]!, width: 1),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                'Повномасштабна війна:',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    '$days2022',
-                    style: const TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Text(
-                    ' д. ',
-                    style: TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '$hours2022',
-                    style: const TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Text(
-                    ' г.',
-                    style: TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Війна з 2014 року:',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    '$days2014',
-                    style: const TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Text(
-                    ' д. ',
-                    style: TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '$hours2014',
-                    style: const TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Text(
-                    ' г.',
-                    style: TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-EOF
-
-git add lib/main.dart
-git commit -m "Center widget content vertically"
-git push -f origin main
-cd ~/projects/time_of_war
-git reset --hard 8b4743d
-git push -f origin main
-cd ~/projects/time_of_war
+print("Нативні XML-файли віджета успішно оновлено!")
+'
+git add android/app/src/main/res/layout/
+git commit -m "UI: stretch Android widget to fill entire launcher cell"
+git push origin main
+# 1. Переходимо в папку проєкту
+cd time_of_war
+# 2. Виконуємо скрипт (тепер він побачить шлях android/app/...)
 python3 -c '
-import re
+import glob, re
 
-with open("lib/main.dart", "r", encoding="utf-8") as f:
-    code = f.read()
+layouts = glob.glob("android/app/src/main/res/layout/*.xml")
+for path in layouts:
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+    
+    content = re.sub(r"android:padding=\"[^\"]+\"", "android:padding=\"0dp\"", content)
+    content = re.sub(r"android:layout_margin=\"[^\"]+\"", "android:layout_margin=\"0dp\"", content)
+    
+    content = re.sub(r"(<ImageView[^>]*?android:layout_width=\")[^\"]+(\")", r"\g<1>match_parent\g<2>", content)
+    content = re.sub(r"(<ImageView[^>]*?android:layout_height=\")[^\"]+(\")", r"\g<1>match_parent\g<2>", content)
+    
+    if "android:scaleType" in content:
+        content = re.sub(r"android:scaleType=\"[^\"]+\"", "android:scaleType=\"fitXY\"", content)
+    else:
+        content = re.sub(r"(<ImageView)", r"\1\n    android:scaleType=\"fitXY\"", content)
+        
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
 
-# 1. Однакове закруглення для всіх кутів віджета
-code = re.sub(r"BorderRadius\.only\([\s\S]*?\)", "BorderRadius.circular(18)", code)
+print("Нативні XML-файли віджета успішно оновлено!")
+'
+# 3. Додаємо та відправляємо реальні зміни до репозиторію
+git add android/app/src/main/res/layout/
+git commit -m "UI: stretch Android widget to fill entire launcher cell"
+git push origin main
+python3 -c '
+import glob, re
 
-# 2. Вертикальне центрування у Column
-if "mainAxisAlignment:" in code:
-    code = re.sub(r"mainAxisAlignment:\s*MainAxisAlignment\.\w+", "mainAxisAlignment: MainAxisAlignment.center", code)
+layouts = glob.glob("android/app/src/main/res/layout/*.xml")
+if not layouts:
+    print("XML-файли не знайдено. Перевірте структуру папок.")
 else:
-    code = code.replace("Column(", "Column(\n          mainAxisAlignment: MainAxisAlignment.center,")
-
-# 3. Зменшення великих відступів, щоб нижній таймер не влазив у край
-code = re.sub(r"SizedBox\(\s*height:\s*(?:1[0-9]|[2-9][0-9])\.?0?\s*\)", "SizedBox(height: 4)", code)
-
-with open("lib/main.dart", "w", encoding="utf-8") as f:
-    f.write(code)
-'
-git add lib/main.dart
-git commit -m "Fix widget vertical centering and corner radius"
-git push -f origin main
-cd ~/projects/time_of_war
-# 1. Скасовуємо коміт із пошкодженим синтаксисом
-git reset --hard HEAD~1
-# 2. Виправляємо закруглення та центрування без пошкодження дужок Dart
-python3 -c '
-with open("lib/main.dart", "r", encoding="utf-8") as f:
-    code = f.read()
-
-# Безпечна заміна BorderRadius.only з урахуванням вкладених дужок
-target = "BorderRadius.only("
-while target in code:
-    start = code.find(target)
-    depth = 0
-    end = start + len(target) - 1
-    for i in range(start + len(target) - 1, len(code)):
-        if code[i] == "(":
-            depth += 1
-        elif code[i] == ")":
-            depth -= 1
-            if depth == 0:
-                end = i
-                break
-    code = code[:start] + "BorderRadius.circular(18)" + code[end + 1:]
-
-# Вертикальне центрування
-import re
-code = re.sub(r"MainAxisAlignment\.(start|end|spaceBetween|spaceAround|spaceEvenly)", "MainAxisAlignment.center", code)
-
-with open("lib/main.dart", "w", encoding="utf-8") as f:
-    f.write(code)
-'
-# 3. Фіксуємо та відправляємо на GitHub
-git add lib/main.dart
-git commit -m "Fix widget centering and border radius safely"
-git push -f origin main
-cd ~/projects/time_of_war
-# 1. Відкочуємо останній зламаний коміт
-git reset --hard HEAD~1
-# 2. Безпечно прибираємо const та налаштовуємо закруглення й центрування
-python3 -c '
-with open("lib/main.dart", "r", encoding="utf-8") as f:
-    code = f.read()
-
-# Прибираємо const перед BoxDecoration, щоб не виникало помилок компіляції
-code = code.replace("const BoxDecoration(", "BoxDecoration(")
-
-# Замінюємо BorderRadius.only на однакове закруглення кутів
-target = "BorderRadius.only("
-while target in code:
-    start = code.find(target)
-    depth = 0
-    end = start + len(target) - 1
-    for i in range(start + len(target) - 1, len(code)):
-        if code[i] == "(":
-            depth += 1
-        elif code[i] == ")":
-            depth -= 1
-            if depth == 0:
-                end = i
-                break
-    code = code[:start] + "BorderRadius.circular(18.0)" + code[end + 1:]
-
-# Вирівнюємо вміст вертикально по центру
-import re
-code = re.sub(r"MainAxisAlignment\.(start|end|spaceBetween|spaceAround|spaceEvenly)", "MainAxisAlignment.center", code)
-
-with open("lib/main.dart", "w", encoding="utf-8") as f:
-    f.write(code)
-'
-# 3. Зберігаємо та відправляємо на GitHub
-git add lib/main.dart
-git commit -m "Fix const decoration error and align widget vertically"
-git push -f origin main
-cd ~/projects/time_of_war
-python3 -c '
-import re
-
-def replace_balanced(text, prefix, replacement):
-    while prefix in text:
-        start = text.find(prefix)
-        depth = 0
-        end = start
-        for i in range(start + len(prefix) - 1, len(text)):
-            if text[i] == "(":
-                depth += 1
-            elif text[i] == ")":
-                depth -= 1
-                if depth == 0:
-                    end = i
-                    break
-        if end > start:
-            text = text[:start] + replacement + text[end + 1:]
+    for path in layouts:
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        # Прибираємо відступи
+        content = re.sub(r"android:padding=\"[^\"]+\"", "android:padding=\"0dp\"", content)
+        content = re.sub(r"android:layout_margin=\"[^\"]+\"", "android:layout_margin=\"0dp\"", content)
+        
+        # Розтягуємо на весь екран
+        content = re.sub(r"(<ImageView[^>]*?android:layout_width=\")[^\"]+(\")", r"\g<1>match_parent\g<2>", content)
+        content = re.sub(r"(<ImageView[^>]*?android:layout_height=\")[^\"]+(\")", r"\g<1>match_parent\g<2>", content)
+        
+        # Задаємо масштабування fitXY
+        if "android:scaleType" in content:
+            content = re.sub(r"android:scaleType=\"[^\"]+\"", "android:scaleType=\"fitXY\"", content)
         else:
-            break
-    return text
-
-with open("lib/main.dart", "r", encoding="utf-8") as f:
-    code = f.read()
-
-parts = code.split("class ")
-new_parts = [parts[0]]
-
-for cls in parts[1:]:
-    if "Повномасштабна" in cls:
-        # Універсальне закруглення для всіх кутів
-        cls = replace_balanced(cls, "BorderRadius.only(", "BorderRadius.circular(18.0)")
-        cls = replace_balanced(cls, "BorderRadius.vertical(", "BorderRadius.circular(18.0)")
-        
-        # Зменшуємо проміжки між текстом, щоб віджет став нижчим і не обрізався
-        cls = re.sub(r"SizedBox\(\s*height:\s*\d+\.?\d*\s*\)", "SizedBox(height: 2.0)", cls)
-        
-        # Вирівнюємо строго по центру
-        cls = re.sub(r"MainAxisAlignment\.\w+", "MainAxisAlignment.center", cls)
-        
-        # Робимо колонку компактною по висоті
-        cls = re.sub(r"mainAxisSize:\s*MainAxisSize\.[^,]+,", "", cls)
-        cls = cls.replace("Column(", "Column(mainAxisSize: MainAxisSize.min, ")
-        
-        # Гарантуємо, що фонова картинка не вилізе за закруглені кути
-        cls = re.sub(r"clipBehavior:\s*Clip\.[^,]+,", "", cls)
-        cls = cls.replace("decoration: BoxDecoration", "clipBehavior: Clip.antiAlias, decoration: BoxDecoration")
+            content = re.sub(r"(<ImageView)", r"\1\n    android:scaleType=\"fitXY\"", content)
             
-    new_parts.append(cls)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(content)
 
-code = "class ".join(new_parts)
-
-with open("lib/main.dart", "w", encoding="utf-8") as f:
-    f.write(code)
+    print("Нативні XML-файли віджета успішно оновлено!")
 '
-git add lib/main.dart
-git commit -m "Fix widget clipping by Android and align content center"
-git push -f origin main
-cd ~/projects/time_of_war
-git reset --hard HEAD~1
-git push -f origin main
-cd ~/projects/time_of_war
-git log --oneline -n 7
-git reset --hard 3d0726e
-git push -f origin main
-cd ~/projects/time_of_war
-curl -F "file=@lib/main.dart" https://0x0.st
-curl --data-binary @lib/main.dart https://paste.rs/
-cd ~/projects/time_of_war
-cat << 'EOF' > update_widget.py
-with open("lib/main.dart", "r", encoding="utf-8") as f:
-    code = f.read()
-
-# Зменшуємо прев'ю до квадрата 1х1 у меню налаштувань
-code = code.replace("height: 200", "height: 140")
-code = code.replace("height: 220", "height: 140")
-code = code.replace("width: double.infinity", "width: 140")
-
-with open("lib/main.dart", "w", encoding="utf-8") as f:
-    f.write(code)
-print("Updated successfully")
-EOF
-
-python3 update_widget.py
-git add lib/main.dart
-git commit -m "Fix widget preview size and proportions 1x1"
-git push -f origin main
-cd ~/projects/time_of_war
+git add android/app/src/main/res/layout/
+git commit -m "UI: stretch Android widget to fill entire launcher cell"
+git push origin main
+cat android/app/src/main/res/layout/*.xml
+echo "---"
+cat android/app/src/main/res/xml/*.xml
 python3 -c '
-with open("lib/main.dart", "r", encoding="utf-8") as f:
+import re
+
+path = "lib/main.dart"
+with open(path, "r", encoding="utf-8") as f:
     code = f.read()
 
-# Робимо контейнер прев\'ю квадратним (1:1), щоб він повністю відповідав віджету на робочому столі
-# Шукаємо контейнер превю та примусово задаємо йому рівні сторони або AspectRatio
-if "Прев" in code and "Container(" in code:
-    code = code.replace("Container(\n          width: double.infinity", "AspectRatio(\n        aspectRatio: 1.0,\n        child: Container(\n          width: double.infinity")
-code = code.replace("height: 180", "height: 150").replace("width: double.infinity", "width: 150")
-with open("lib/main.dart", "w", encoding="utf-8") as f:
+# 1. Робимо ширину гумовою (double.infinity)
+code = re.sub(r"width:\s*\d+\.0?,", "width: double.infinity, height: double.infinity,", code)
+code = re.sub(r"width:\s*\d+,", "width: double.infinity, height: double.infinity,", code)
+
+# 2. Змінюємо квадратний рендер на широкий (800x350)
+code = re.sub(r"logicalSize:\s*const\s*Size\([^\)]+\)", "logicalSize: const Size(800, 350)", code)
+code = re.sub(r"logicalSize:\s*Size\([^\)]+\)", "logicalSize: const Size(800, 350)", code)
+
+# 3. Прибираємо зайві відступи навколо фону
+code = re.sub(r"padding:\s*const\s*EdgeInsets\.symmetric\([^\)]+\),", "padding: const EdgeInsets.all(0),", code)
+
+with open(path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Розміри віджета успішно оптимізовані у lib/main.dart!")
+'
+git add lib/main.dart
+git commit -m "UI: stretch widget to fill entire frame and update aspect ratio"
+git push origin main
+# 1. Відновлюємо робочу версію main.dart
+git checkout HEAD~1 lib/main.dart
+# 2. Безпечно виправляємо ТІЛЬКИ пропорції рендеру віджета
+python3 -c '
+path = "lib/main.dart"
+with open(path, "r", encoding="utf-8") as f:
+    code = f.read()
+
+# Змінюємо квадратний рендер 400x400 на широкий прямокутник 800x400
+code = code.replace("const Size(400, 400)", "const Size(800, 400)")
+code = code.replace("Size(400, 400)", "Size(800, 400)")
+
+with open(path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Інтерфейс налаштувань відновлено, а віджет переведено у формат 800x400!")
+'
+# 3. Відправляємо виправлення на GitHub
+git add lib/main.dart
+git commit -m "Fix settings UI crash and safely set widget render resolution to 800x400"
+git push origin main --force
+python3 -c '
+import os, re
+
+# 1. Створюємо файли ресурсів Android для вимкнення системних відступів Android 12+
+os.makedirs("android/app/src/main/res/values", exist_ok=True)
+os.makedirs("android/app/src/main/res/values-v31", exist_ok=True)
+
+with open("android/app/src/main/res/values-v31/dimens.xml", "w", encoding="utf-8") as f:
+    f.write("""<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="system_app_widget_internal_padding">0dp</dimen>
+</resources>""")
+
+with open("android/app/src/main/res/values/dimens.xml", "w", encoding="utf-8") as f:
+    f.write("""<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="app_widget_margin">0dp</dimen>
+</resources>""")
+
+# 2. Оновлюємо lib/main.dart: прибираємо порожні поля навколо фону віджета
+path = "lib/main.dart"
+with open(path, "r", encoding="utf-8") as f:
+    code = f.read()
+
+# Зменшуємо внутрішні відступи з 40px/24px до 8px (щоб фон розтягувався до самого краю)
+code = re.sub(r"EdgeInsets\.symmetric\(vertical:\s*\d+(\.\d+)?,?\s*horizontal:\s*\d+(\.\d+)?\)", "EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0)", code)
+code = re.sub(r"EdgeInsets\.all\(\s*(40|32|24|20)\.0?\s*\)", "EdgeInsets.all(8.0)", code)
+
+# Зменшуємо радіус заокруглення кутів з 56 до 16 для акуратного вписування в рамку
+code = re.sub(r"BorderRadius\.circular\((56|40|32|28)\)", "BorderRadius.circular(16)", code)
+
+# Задаємо пропорції рендеру 800x360
+code = re.sub(r"logicalSize:\s*(const\s*)?Size\(\s*\d+(\.\d+)?\s*,\s*\d+(\.\d+)?\s*\)", "logicalSize: const Size(800, 360)", code)
+
+with open(path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Всі системні та внутрішні відступи успішно виправлено!")
+'
+# 3. Відправляємо зміни на GitHub
+git add lib/main.dart android/app/src/main/res/
+git commit -m "Fix: remove widget internal paddings and Android 12 margins to fill launcher cell"
+git push origin main
+python3 -c '
+import re
+
+path = "lib/main.dart"
+with open(path, "r", encoding="utf-8") as f:
+    code = f.read()
+
+# 1. Прибираємо всі зовнішні margin у віджета
+code = re.sub(r"margin:\s*EdgeInsets\.[^,\)\n]+(\([^\)]*\))?", "margin: EdgeInsets.zero", code)
+
+# 2. Встановлюємо режим розтягування фонового зображення на весь контейнер (BoxFit.fill)
+if "fit: BoxFit." in code:
+    code = re.sub(r"fit:\s*BoxFit\.[a-zA-Z]+", "fit: BoxFit.fill", code)
+else:
+    code = re.sub(r"(DecorationImage\s*\()", r"\1fit: BoxFit.fill, ", code)
+
+# 3. Встановлюємо пропорції прямокутника 800x400
+code = re.sub(r"logicalSize:\s*(const\s*)?Size\([^\)]+\)", "logicalSize: const Size(800, 400)", code)
+
+with open(path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Фон віджета успішно переведено в режим BoxFit.fill без відступів!")
+'
+git add lib/main.dart
+git commit -m "UI: stretch widget background image to 100% full width and height with BoxFit.fill"
+git push origin main
+python3 -c '
+import re
+
+path = "lib/main.dart"
+with open(path, "r", encoding="utf-8") as f:
+    code = f.read()
+
+# 1. Фіксуємо розмір кореневого контейнера віджета на 800x400
+# Шукаємо Container/SizedBox, який рендерить віджет, і задаємо точні фіксовані параметри
+code = re.sub(
+    r"(Widget\s+buildWidget[^\{]+\{[\s\S]*?return\s+)(Container|SizedBox)\(",
+    r"\1SizedBox(\n      width: 800.0,\n      height: 400.0,\n      child: \2(",
+    code
+)
+
+# Якщо використовується окремий метод або макет для віджета, перевіряємо наявність SizedBox з фіксованими розмірами
+if "width: 800.0" not in code:
+    code = re.sub(
+        r"(Container\(\s*width:\s*double\.infinity)",
+        r"Container(width: 800.0, height: 400.0",
+        code
+    )
+
+with open(path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Розміри полотна віджета зафіксовано на 800x400!")
+'
+git add lib/main.dart
+git commit -m "UI: lock widget canvas size to 800x400 so font size changes only scale text inside fixed background"
+git push origin main
+cat lib/main.dart | grep -n -B 2 -A 15 "BoxDecoration"
+python3 -c '
+path = "lib/main.dart"
+with open(path, "r", encoding="utf-8") as f:
+    code = f.read()
+
+# Прив'язуємо колір фону bgColor незалежно від наявності зображення
+code = code.replace("color: imagePath == null ? bgColor : null,", "color: bgColor,")
+code = code.replace("color: _imagePath == null ? bgColor : null,", "color: bgColor,")
+with open(path, "w", encoding="utf-8") as f:
+print("Колір фону з повзунків успішно активовано!")
 '
 
 git add lib/main.dart
-git commit -m "Make widget preview square 1x1 to match home screen"
-git push -f origin main
-cd ~/projects/time_of_war
+git commit -m "Fix: enable background color sliders under image layer"
+git push origin main
+cat << 'EOF' > fix_color.py
+path = "lib/main.dart"
+with open(path, "r", encoding="utf-8") as f:
+    code = f.read()
 
-cat << 'EOF' > fix.py
-with open("lib/main.dart", "r", encoding="utf-8") as f:
-    content = f.read()
+code = code.replace("color: imagePath == null ? bgColor : null,", "color: bgColor,")
+code = code.replace("color: _imagePath == null ? bgColor : null,", "color: bgColor,")
 
-# Робимо однакові закруглені кути для віджета
-content = content.replace("BorderRadius.only(", "BorderRadius.circular(18.0) /* ")
-content = content.replace("BorderRadius.vertical(", "BorderRadius.circular(18.0) /* ")
+with open(path, "w", encoding="utf-8") as f:
+    f.write(code)
 
-with open("lib/main.dart", "w", encoding="utf-8") as f:
-    f.write(content)
-
-print("Script executed successfully")
+print("Колір фону з повзунків успішно активовано!")
 EOF
 
-python3 fix.py
-rm fix.py
+python3 fix_color.py && rm fix_color.py
 
 git add lib/main.dart
-git commit -m "Fix widget border radius uniformly"
-git push -f origin main
-cd ~/projects/time_of_war
-echo "" >> lib/main.dart
+git commit -m "Fix: enable background color sliders under image layer"
+git push origin main
+git status && git log -1
 git add lib/main.dart
-git commit -m "Force trigger build"
-git push -f origin main
+git commit -m "Fix: enable background color sliders under image layer"
+git push origin main
+sed -i 's/color: imagePath == null ? bgColor : null,/color: bgColor,/g' lib/main.dart
+sed -i 's/color: _imagePath == null ? bgColor : null,/color: bgColor,/g' lib/main.dart
+git add lib/main.dart && git commit -m "Fix: enable background color under image" && git push origin main
+cat lib/main.dart | grep -n -A 5 "DateTime(20" && echo "---" && cat lib/main.dart | grep -n -B 2 -A 2 "хв"
+cat << 'EOF' > fix_times.py
+path = "lib/main.dart"
+with open(path, "r", encoding="utf-8") as f:
+    code = f.read()
+
+# 1. Синхронізуємо час для 2022 року в UI (05:00 -> 02:40)
+code = code.replace("DateTime(2022, 2, 24, 5, 0)", "DateTime(2022, 2, 24, 2, 40)")
+
+# 2. Виправляємо фонове оновлення віджета для 2022 року (00:00:00 -> 02:40:00)
+code = code.replace("DateTime(2022, 2, 24, 0, 0, 0)", "DateTime(2022, 2, 24, 2, 40, 0)")
+
+# 3. Виправляємо фонове оновлення віджета для 2014 року (щоб теж було 12:00:00 замість 00:00:00)
+code = code.replace("DateTime(2014, 2, 20, 0, 0, 0)", "DateTime(2014, 2, 20, 12, 0, 0)")
+
+with open(path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Час для 2022 року (02:40) та 2014 року (12:00) успішно застосовано!")
+EOF
+
+python3 fix_times.py && rm fix_times.py
+git add lib/main.dart
+git commit -m "Fix: set exact start times (2022 to 02:40, 2014 to 12:00) for UI and widget"
+git push origin main
+cat lib/main.dart | grep -n -A 25 "String _calculateTimeDifference"
+cat << 'EOF' > fix_calc.py
+import re
+
+path = "lib/main.dart"
+with open(path, "r", encoding="utf-8") as f:
+    code = f.read()
+
+new_calc = '''  String _calculateTimeDifference(DateTime startDate) {
+    final now = DateTime.now();
+
+    if (_showDaysOnly) {
+      final difference = now.difference(startDate);
+      int totalDays = difference.inDays;
+      int hours = now.hour - startDate.hour;
+      int minutes = now.minute - startDate.minute;
+      if (minutes < 0) hours--;
+      if (hours < 0) hours += 24;
+
+      String output = "${totalDays}д.";
+      if (_showHour) output += " ${hours}г.";
+      return output;
+    } else {
+      int years = now.year - startDate.year;
+      int months = now.month - startDate.month;
+      int days = now.day - startDate.day;
+      int hours = now.hour - startDate.hour;
+      int minutes = now.minute - startDate.minute;
+
+      if (minutes < 0) {
+        hours--;
+        minutes += 60;
+      }
+      if (hours < 0) {
+        days--;
+        hours += 24;
+      }
+      if (days < 0) {
+        months--;
+        final prevMonth = DateTime(now.year, now.month, 0);
+        days += prevMonth.day;
+      }
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+
+      return "${years}р. ${months}міс. ${days}д. ${hours}г.";
+    }
+  }'''
+
+code = re.sub(
+    r'String\s+_calculateTimeDifference\s*\([^)]*\)\s*\{[\s\S]*?\n  \}',
+    new_calc,
+    code
+)
+
+with open(path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Математику розрахунку виправлено (хвилини враховуються, але приховані)!")
+EOF
+
+python3 fix_calc.py && rm fix_calc.py
+git add lib/main.dart
+git commit -m "Fix: account for minutes in _calculateTimeDifference math without displaying them"
+git push origin main
+cat lib/main.dart | grep -n -B 4 -A 6 "saveWidgetData" && echo "---" && cat lib/main.dart | grep -n -A 30 "calculateTimeDifference"
+cat << 'EOF' > fix_all.py
+import re
+
+path = "lib/main.dart"
+with open(path, "r", encoding="utf-8") as f:
+    code = f.read()
+
+# 1. Створюємо єдину точну глобальну функцію
+global_func = '''
+String getGlobalAccurateTime(DateTime startDate, bool showDaysOnly, bool showHour) {
+  final n = DateTime.now();
+  if (showDaysOnly) {
+    int totalDays = n.difference(startDate).inDays;
+    int hours = n.hour - startDate.hour;
+    int minutes = n.minute - startDate.minute;
+    if (minutes < 0) hours--;
+    if (hours < 0) hours += 24;
+    String out = "${totalDays}д.";
+    if (showHour) out += " ${hours}г.";
+    return out;
+  } else {
+    int years = n.year - startDate.year;
+    int months = n.month - startDate.month;
+    int days = n.day - startDate.day;
+    int hours = n.hour - startDate.hour;
+    int minutes = n.minute - startDate.minute;
+    if (minutes < 0) { hours--; minutes += 60; }
+    if (hours < 0) { days--; hours += 24; }
+    if (days < 0) { months--; final pMonth = DateTime(n.year, n.month, 0); days += pMonth.day; }
+    if (months < 0) { years--; months += 12; }
+    return "${years}р. ${months}міс. ${days}д. ${hours}г.";
+  }
+}
+'''
+if "String getGlobalAccurateTime" not in code:
+    code = code.replace("void main()", global_func + "\nvoid main()")
+
+# 2. Виправляємо перший фоновий сервіс (рядки 17-22)
+code = re.sub(
+    r'final diff2022 = now\.difference[^;]+;\s*final diff2014 = now\.difference[^;]+;\s*await HomeWidget\.saveWidgetData\(\'text_2022\',[^;]+;\s*await HomeWidget\.saveWidgetData\(\'text_2014\',[^;]+;',
+    '''final prefs = await SharedPreferences.getInstance();
+    bool dO = prefs.getBool('showDaysOnly') ?? false;
+    bool sh = prefs.getBool('showHour') ?? true;
+    await HomeWidget.saveWidgetData('text_2022', getGlobalAccurateTime(DateTime(2022, 2, 24, 2, 40), dO, sh));
+    await HomeWidget.saveWidgetData('text_2014', getGlobalAccurateTime(DateTime(2014, 2, 20, 12, 0), dO, sh));''',
+    code
+)
+
+# 3. Виправляємо другий фоновий цикл із "Regex милицями" (рядки 528-541)
+code = code.replace(
+    r"String newVal = val.replaceAll(RegExp(r'\d+г\.'), '${h2014}г.');",
+    "bool dO = prefs.getBool('showDaysOnly') ?? false; bool sh = prefs.getBool('showHour') ?? true; String newVal = getGlobalAccurateTime(DateTime(2014, 2, 20, 12, 0), dO, sh);"
+)
+code = code.replace(
+    r"String newVal = val.replaceAll(RegExp(r'\d+г\.'), '${h2022}г.');",
+    "bool dO = prefs.getBool('showDaysOnly') ?? false; bool sh = prefs.getBool('showHour') ?? true; String newVal = getGlobalAccurateTime(DateTime(2022, 2, 24, 2, 40), dO, sh);"
+)
+
+# 4. Переводимо UI на використання глобальної функції (видаляємо стару дубльовану логіку)
+code = re.sub(
+    r'String\s+_calculateTimeDifference\s*\([^)]*\)\s*\{[\s\S]*?return\s+"[^"]+";\s*\}\s*\}',
+    '''String _calculateTimeDifference(DateTime startDate) {
+    return getGlobalAccurateTime(startDate, _showDaysOnly, _showHour);
+  }''',
+    code
+)
+
+with open(path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Успіх! Усі алгоритми синхронізовано!")
+EOF
+
+python3 fix_all.py && rm fix_all.py
+git add lib/main.dart
+git commit -m "Fix: unify exact time calculation globally for UI and all background workers"
+git push origin main
+git show HEAD
+cat lib/main.dart | grep -n -A 20 "void callbackDispatcher" && echo "---" && cat lib/main.dart | grep -n -A 15 "void main"
+cat << 'EOF' > fix_smart_schedule.py
+import re
+
+path = "lib/main.dart"
+with open(path, "r", encoding="utf-8") as f:
+    code = f.read()
+
+# 1. Задаємо 1 годину для періодичного оновлення Workmanager (коли увімкнено години)
+code = re.sub(
+    r'frequency:\s*const\s*Duration\([^)]+\)',
+    'frequency: const Duration(hours: 1)',
+    code
+)
+
+# 2. Налаштовуємо точні щоденні спрацьовування в AlarmManager (о 02:40 та 12:00)
+alarm_setup = '''
+  await AndroidAlarmManager.initialize();
+  DateTime now = DateTime.now();
+
+  // Точний час зміни дня для 2022 року (02:40)
+  DateTime next2022 = DateTime(now.year, now.month, now.day, 2, 40);
+  if (now.isAfter(next2022)) next2022 = next2022.add(const Duration(days: 1));
+
+  // Точний час зміни дня для 2014 року (12:00)
+  DateTime next2014 = DateTime(now.year, now.month, now.day, 12, 0);
+  if (now.isAfter(next2014)) next2014 = next2014.add(const Duration(days: 1));
+
+  await AndroidAlarmManager.periodic(const Duration(days: 1), 101, callbackDispatcher, startAt: next2022, exact: true, wakeup: true);
+  await AndroidAlarmManager.periodic(const Duration(days: 1), 102, callbackDispatcher, startAt: next2014, exact: true, wakeup: true);
+'''
+
+# Замінюємо старий запуск AlarmManager на новий розклад
+code = re.sub(
+    r'await\s+AndroidAlarmManager\.initialize\(\);[\s\S]*?await\s+AndroidAlarmManager\.periodic[^;]+;',
+    alarm_setup.strip(),
+    code
+)
+
+with open(path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Розумний розклад успішно застосовано (1г для годин, 02:40 та 12:00 для днів)!")
+EOF
+
+python3 fix_smart_schedule.py && rm fix_smart_schedule.py
+git add lib/main.dart
+git commit -m "Optimize: set 1h update interval and exact alarms at 02:40 and 12:00"
+git push origin main
+adb logcat | grep -E -i "flutter|time_of_war|widget"
+git status
+<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+<uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+python fix_timer_bg.py
+git diff
+proot-distro login ubuntu
