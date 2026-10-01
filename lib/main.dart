@@ -53,37 +53,11 @@ String getGlobalAccurateTime(DateTime startDate, bool showDaysOnly, bool showHou
   }
 }
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
-  Workmanager().registerPeriodicTask(
-    "time_of_war_update",
-    "updateWidgetTask",
-    frequency: const Duration(hours: 1),
-    existingWorkPolicy: ExistingWorkPolicy.replace
-  );
 
-  WidgetsFlutterBinding.ensureInitialized();
+@pragma('vm:entry-point')
+Future<void> scheduleNextBackgroundUpdate() async {
   await AndroidAlarmManager.initialize();
-  DateTime now = DateTime.now();
-
-  // Точний час зміни дня для 2022 року (02:40)
-  DateTime next2022 = DateTime(now.year, now.month, now.day, 2, 40);
-  if (now.isAfter(next2022)) next2022 = next2022.add(const Duration(days: 1));
-
-  // Точний час зміни дня для 2014 року (12:00)
-  DateTime next2014 = DateTime(now.year, now.month, now.day, 12, 0);
-  if (now.isAfter(next2014)) next2014 = next2014.add(const Duration(days: 1));
-
-  await AndroidAlarmManager.periodic(const Duration(days: 1), 101, callbackDispatcher, startAt: next2022, exact: true, wakeup: true);
-  await AndroidAlarmManager.periodic(const Duration(days: 1), 102, callbackDispatcher, startAt: next2014, exact: true, wakeup: true);
-  DateTime nowForHour = DateTime.now();
-  DateTime nextHour = DateTime(nowForHour.year, nowForHour.month, nowForHour.day, nowForHour.hour).add(const Duration(hours: 1, minutes: 1));
-  if (nextHour.isBefore(nowForHour)) {
-    nextHour = nextHour.add(const Duration(hours: 1));
-  }
-  await AndroidAlarmManager.periodic(const Duration(hours: 1), 2, backgroundUpdate, startAt: nextHour, exact: true, wakeup: true);
-
+  await scheduleNextBackgroundUpdate();
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
@@ -562,8 +536,10 @@ void backgroundUpdate() async {
 
     await HomeWidget.updateWidget(name: 'WidgetProvider', androidName: 'WidgetProvider');
   } catch (e) {
-    // Фоновий рендеринг
-  }
+      // Фоновий рендеринг
+    } finally {
+      await scheduleNextBackgroundUpdate();
+    }
 }
 
 // Force trigger build
