@@ -64,22 +64,25 @@ void main() async {
   );
 
   WidgetsFlutterBinding.ensureInitialized();
-    await AndroidAlarmManager.initialize();
+  await AndroidAlarmManager.initialize();
   DateTime now = DateTime.now();
 
-  // Оновлення о 03:00 ночі (для 2022)
-  DateTime at3AM = DateTime(now.year, now.month, now.day, 3, 0);
-  if (now.isAfter(at3AM)) at3AM = at3AM.add(const Duration(days: 1));
-  await AndroidAlarmManager.periodic(const Duration(days: 1), 1, backgroundUpdate, startAt: at3AM, exact: true, wakeup: true);
+  // Точний час зміни дня для 2022 року (02:40)
+  DateTime next2022 = DateTime(now.year, now.month, now.day, 2, 40);
+  if (now.isAfter(next2022)) next2022 = next2022.add(const Duration(days: 1));
 
-  // Оновлення о 12:00 дня (для 2014)
-  DateTime at12PM = DateTime(now.year, now.month, now.day, 12, 0);
-  if (now.isAfter(at12PM)) at12PM = at12PM.add(const Duration(days: 1));
-  await AndroidAlarmManager.periodic(const Duration(days: 1), 2, backgroundUpdate, startAt: at12PM, exact: true, wakeup: true);
+  // Точний час зміни дня для 2014 року (12:00)
+  DateTime next2014 = DateTime(now.year, now.month, now.day, 12, 0);
+  if (now.isAfter(next2014)) next2014 = next2014.add(const Duration(days: 1));
 
-  // Погодинне оновлення
-  DateTime nextHour = DateTime(now.year, now.month, now.day, now.hour).add(const Duration(hours: 1, minutes: 1));
-  await AndroidAlarmManager.periodic(const Duration(hours: 1), 3, backgroundUpdate, startAt: nextHour, exact: true, wakeup: true);
+  await AndroidAlarmManager.periodic(const Duration(days: 1), 101, callbackDispatcher, startAt: next2022, exact: true, wakeup: true);
+  await AndroidAlarmManager.periodic(const Duration(days: 1), 102, callbackDispatcher, startAt: next2014, exact: true, wakeup: true);
+  DateTime nowForHour = DateTime.now();
+  DateTime nextHour = DateTime(nowForHour.year, nowForHour.month, nowForHour.day, nowForHour.hour).add(const Duration(hours: 1, minutes: 1));
+  if (nextHour.isBefore(nowForHour)) {
+    nextHour = nextHour.add(const Duration(hours: 1));
+  }
+  await AndroidAlarmManager.periodic(const Duration(hours: 1), 2, backgroundUpdate, startAt: nextHour, exact: true, wakeup: true);
 
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
@@ -559,7 +562,7 @@ void backgroundUpdate() async {
 
     await HomeWidget.updateWidget(name: 'WidgetProvider', androidName: 'WidgetProvider');
   } catch (e) {
-    // Помилка рендерингу у фоні
+    // Фоновий рендеринг
   }
 }
 
