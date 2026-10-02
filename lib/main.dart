@@ -156,11 +156,11 @@ class TimeOfWarWidgetRender extends StatelessWidget {
           decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: bgColor,
-        image: imagePath != null
-            ? DecorationImage(
-                image: FileImage(File(imagePath!)),
-                fit: BoxFit.fill, opacity: opacity)
-            : null,
+        image: (imagePath != null && File(imagePath!).existsSync())
+              ? DecorationImage(
+                  image: FileImage(File(imagePath!)),
+                  fit: BoxFit.fill, opacity: opacity)
+              : null,
       ),
       child: Container(
         alignment: Alignment.center,
@@ -364,7 +364,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               color: bgColor,
-              image: _imagePath != null ? DecorationImage(image: FileImage(File(_imagePath!)), fit: BoxFit.fill, opacity: _opacity) : null,
+              image: (_imagePath != null && File(_imagePath!).existsSync()) ? DecorationImage(image: FileImage(File(_imagePath!)), fit: BoxFit.fill, opacity: _opacity) : null,
               border: Border.all(color: Colors.white10, width: 1),
             ),
             child: Container(
@@ -399,8 +399,20 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       String? cropped = await _cropImage(pickedFile.path);
-      setState(() => _imagePath = (cropped ?? pickedFile.path));
-      _saveSetting('imagePath', pickedFile.path);
+      String sourcePath = cropped ?? pickedFile.path;
+      
+      try {
+        // Копіюємо файл у постійну папку додатка, щоб Android його не видалив з кешу
+        final appDir = File(sourcePath).parent.path;
+        final persistentPath = '$appDir/bg_widget_saved.png';
+        final savedFile = await File(sourcePath).copy(persistentPath);
+        
+        setState(() => _imagePath = savedFile.path);
+        _saveSetting('imagePath', savedFile.path);
+      } catch (e) {
+        setState(() => _imagePath = sourcePath);
+        _saveSetting('imagePath', sourcePath);
+      }
     }
   }
 
