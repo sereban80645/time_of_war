@@ -1,3 +1,4 @@
+import 'package:path_provider/path_provider.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:ui';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
@@ -402,16 +403,16 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
       String sourcePath = cropped ?? pickedFile.path;
       
       try {
-        // Копіюємо файл у постійну папку додатка, щоб Android його не видалив з кешу
-        final appDir = File(sourcePath).parent.path;
-        final persistentPath = '$appDir/bg_widget_saved.png';
+        final docsDir = await getApplicationDocumentsDirectory();
+        final persistentPath = '${docsDir.path}/widget_bg_saved.png';
+        
         final savedFile = await File(sourcePath).copy(persistentPath);
         
         setState(() => _imagePath = savedFile.path);
-        _saveSetting('imagePath', savedFile.path);
+        await _saveSetting('imagePath', savedFile.path);
       } catch (e) {
         setState(() => _imagePath = sourcePath);
-        _saveSetting('imagePath', sourcePath);
+        await _saveSetting('imagePath', sourcePath);
       }
     }
   }
