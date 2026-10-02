@@ -501,17 +501,17 @@ void backgroundUpdate() async {
   double strokeWidth = prefs.getDouble('strokeWidth') ?? 2.0;
   double opacity = prefs.getDouble('opacity') ?? 0.5;
 
-  int br = prefs.getInt('br') ?? 0;
-  int bg = prefs.getInt('bg') ?? 0;
-  int bb = prefs.getInt('bb') ?? 0;
+  int br = (prefs.getDouble('br') ?? 30.0).toInt();
+  int bg = (prefs.getDouble('bg') ?? 30.0).toInt();
+  int bb = (prefs.getDouble('bb') ?? 30.0).toInt();
 
-  int tr = prefs.getInt('tr') ?? 255;
-  int tg = prefs.getInt('tg') ?? 255;
-  int tb = prefs.getInt('tb') ?? 255;
+  int tr = (prefs.getDouble('tr') ?? 255.0).toInt();
+  int tg = (prefs.getDouble('tg') ?? 255.0).toInt();
+  int tb = (prefs.getDouble('tb') ?? 255.0).toInt();
 
-  int sr = prefs.getInt('sr') ?? 0;
-  int sg = prefs.getInt('sg') ?? 0;
-  int sb = prefs.getInt('sb') ?? 0;
+  int sr = (prefs.getDouble('sr') ?? 0.0).toInt();
+  int sg = (prefs.getDouble('sg') ?? 0.0).toInt();
+  int sb = (prefs.getDouble('sb') ?? 0.0).toInt();
 
   String? imagePath = prefs.getString('imagePath');
 
