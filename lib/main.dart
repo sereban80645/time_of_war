@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+import 'dart:ui' as ui;
 import 'package:path_provider/path_provider.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:ui';
@@ -309,23 +311,32 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
         dynamicHeight = 240.0;
       }
 
-      await HomeWidget.renderFlutterWidget(
-        TimeOfWarWidgetRender(
-          show2022: _show2022,
-          show2014: _show2014,
-          time2022: time2022,
-          time2014: time2014,
-          fontSize: _fontSize * 2.5,
-          strokeWidth: _strokeWidth * 2.5,
-          opacity: _opacity,
-          bgColor: bgColor,
-          textColor: textColor,
-          strokeColor: strokeColor,
-          imagePath: _imagePath,
-        ),
-        key: 'widget_image',
-        logicalSize: const Size(800, 400),
-      );
+      
+    // Гарантуємо ініціалізацію зв'язок у фоновому покроці
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // Якщо є шлях до зображення, чекаємо його повного декодування перед знімком
+    if (imagePath != null && File(imagePath).existsSync()) {
+      final completer = Completer<void>();
+      final imageStream = MemoryImage(File(imagePath).readAsBytesSync()).resolve(const ImageConfiguration());
+      late ImageStreamListener listener;
+      listener = ImageStreamListener((_, __) {
+        if (!completer.isCompleted) completer.complete();
+        imageStream.removeListener(listener);
+      }, onError: (_, __) {
+        if (!completer.isCompleted) completer.complete();
+        imageStream.removeListener(listener);
+      });
+      imageStream.addListener(listener);
+      await completer.future.timeout(const Duration(milliseconds: 500), onTimeout: () {});
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    await HomeWidget.renderFlutterWidget(
+      const TimeOfWarWidgetRender(),
+      key: 'filename',
+      logicalSize: const Size(320, 160),
+    );
 
       await HomeWidget.updateWidget(name: 'WidgetProvider', androidName: 'WidgetProvider');
     } catch (e) {
