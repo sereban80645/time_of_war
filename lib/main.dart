@@ -54,12 +54,30 @@ String getGlobalAccurateTime(DateTime startDate, bool showDaysOnly, bool showHou
 }
 
 
-@pragma('vm:entry-point')
-Future<void> scheduleNextBackgroundUpdate() async {
-  await AndroidAlarmManager.initialize();
-  await scheduleNextBackgroundUpdate();
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AndroidAlarmManager.initialize();
+  try {
+    Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+  } catch (e) {}
+  
   runApp(const MyApp());
+  scheduleNextBackgroundUpdate();
+}
+
+Future<void> scheduleNextBackgroundUpdate() async {
+  final now = DateTime.now();
+  // Наступне оновлення: рівно о 01 хвилині наступної години
+  DateTime nextUpdate = DateTime(now.year, now.month, now.day, now.hour).add(const Duration(hours: 1, minutes: 1));
+  
+  await AndroidAlarmManager.oneShotAt(
+    nextUpdate,
+    0,
+    backgroundUpdate,
+    exact: true,
+    wakeup: true,
+    allowWhileIdle: true,
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -470,17 +488,6 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     ]);
   }
 }
-
-
-@pragma('vm:entry-point')
-
-@pragma('vm:entry-point')
-
-@pragma('vm:entry-point')
-
-@pragma('vm:entry-point')
-
-@pragma('vm:entry-point')
 
 
 @pragma('vm:entry-point')
