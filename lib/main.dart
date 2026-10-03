@@ -316,9 +316,9 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     WidgetsFlutterBinding.ensureInitialized();
 
     // Якщо є шлях до зображення, чекаємо його повного декодування перед знімком
-    if (imagePath != null && File(imagePath).existsSync()) {
+    if (_imagePath != null && File(_imagePath!).existsSync()) {
       final completer = Completer<void>();
-      final imageStream = MemoryImage(File(imagePath).readAsBytesSync()).resolve(const ImageConfiguration());
+      final imageStream = MemoryImage(File(_imagePath!).readAsBytesSync()).resolve(const ImageConfiguration());
       late ImageStreamListener listener;
       listener = ImageStreamListener((_, __) {
         if (!completer.isCompleted) completer.complete();
