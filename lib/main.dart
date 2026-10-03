@@ -333,19 +333,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     }
 
     await HomeWidget.renderFlutterWidget(
-      TimeOfWarWidgetRender(
-        show2022: show2022,
-        show2014: show2014,
-        time2022: time2022,
-        time2014: time2014,
-        fontSize: fontSize * 2.5,
-        strokeWidth: strokeWidth * 2.5,
-        opacity: opacity,
-        bgColor: Color.fromRGBO(br, bg, bb, opacity),
-        textColor: Color.fromRGBO(tr, tg, tb, 1.0),
-        strokeColor: Color.fromRGBO(sr, sg, sb, 1.0),
-        imagePath: imagePath,
-      ),
+      TimeOfWarWidgetRender(show2022: _show2022, show2014: _show2014, bgColor: bgColor, textColor: textColor, strokeColor: strokeColor, imagePath: _imagePath),
       key: 'filename',
       logicalSize: const Size(320, 160),
     );
@@ -560,19 +548,7 @@ void backgroundUpdate() async {
 
   try {
     await HomeWidget.renderFlutterWidget(
-      TimeOfWarWidgetRender(
-        show2022: show2022,
-        show2014: show2014,
-        time2022: time2022,
-        time2014: time2014,
-        fontSize: fontSize * 2.5,
-        strokeWidth: strokeWidth * 2.5,
-        opacity: opacity,
-        bgColor: Color.fromRGBO(br, bg, bb, opacity),
-        textColor: Color.fromRGBO(tr, tg, tb, 1.0),
-        strokeColor: Color.fromRGBO(sr, sg, sb, 1.0),
-        imagePath: imagePath,
-      ),
+      TimeOfWarWidgetRender(show2022: _show2022, show2014: _show2014, bgColor: bgColor, textColor: textColor, strokeColor: strokeColor, imagePath: _imagePath),
       key: 'widget_image',
       logicalSize: const Size(800, 400),
     );
