@@ -399,10 +399,11 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 40, maxWidth: 800, maxHeight: 800);
     if (pickedFile != null) {
-        final appDir = await getApplicationDocumentsDirectory();
-        final permanentFile = await File(permanentFile.path).copy('${permanentFile.path}/persistent_widget_bg.jpg');
-      String? cropped = await _cropImage(pickedFile.path);
-      String sourcePath = cropped ?? pickedFile.path;
+      final appDirectory = await getApplicationDocumentsDirectory();
+      final permanentImage = await File(pickedFile.path).copy('${appDirectory.path}/persistent_widget_bg.jpg');
+      final String imagePathToSave = permanentImage.path;
+      String? cropped = await _cropImage(imagePathToSave);
+      String sourcePath = cropped ?? imagePathToSave;
       
       try {
         final docsDir = await getApplicationDocumentsDirectory();
