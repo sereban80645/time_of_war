@@ -309,7 +309,17 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
         dynamicHeight = 240.0;
       }
 
-      await HomeWidget.renderFlutterWidget(
+      
+    // Гарантоване зчитування фонової картинки з постійної пам'яті для фонового процесу
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final bgFile = File('${appDir.path}/persistent_widget_bg.jpg');
+      if (await bgFile.exists()) {
+        imagePath = bgFile.path;
+      }
+    } catch (_) {}
+
+    await HomeWidget.renderFlutterWidget(
         TimeOfWarWidgetRender(
           show2022: _show2022,
           show2014: _show2014,
@@ -539,6 +549,16 @@ void backgroundUpdate() async {
   String? imagePath = prefs.getString('imagePath');
 
   try {
+    
+    // Гарантоване зчитування фонової картинки з постійної пам'яті для фонового процесу
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final bgFile = File('${appDir.path}/persistent_widget_bg.jpg');
+      if (await bgFile.exists()) {
+        imagePath = bgFile.path;
+      }
+    } catch (_) {}
+
     await HomeWidget.renderFlutterWidget(
       TimeOfWarWidgetRender(
         show2022: show2022,
