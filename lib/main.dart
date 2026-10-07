@@ -309,17 +309,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
         dynamicHeight = 240.0;
       }
 
-      
-    // Гарантоване зчитування фонової картинки з постійної пам'яті для фонового процесу
-    try {
-      final appDir = await getApplicationDocumentsDirectory();
-      final bgFile = File('${appDir.path}/persistent_widget_bg.jpg');
-      if (await bgFile.exists()) {
-        imagePath = bgFile.path;
-      }
-    } catch (_) {}
-
-    await HomeWidget.renderFlutterWidget(
+      await HomeWidget.renderFlutterWidget(
         TimeOfWarWidgetRender(
           show2022: _show2022,
           show2014: _show2014,
@@ -409,11 +399,12 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 40, maxWidth: 800, maxHeight: 800);
     if (pickedFile != null) {
-      final appDirectory = await getApplicationDocumentsDirectory();
-      final permanentImage = await File(pickedFile.path).copy('${appDirectory.path}/persistent_widget_bg.jpg');
-      final String imagePathToSave = permanentImage.path;
-      String? cropped = await _cropImage(imagePathToSave);
-      String sourcePath = cropped ?? imagePathToSave;
+      final appDir = await getApplicationDocumentsDirectory();
+      final savedImage = await File(persistentPath).copy('${appDir.path}/persistent_widget_bg.jpg');
+      final String persistentPath = savedImage.path;
+
+      String? cropped = await _cropImage(persistentPath);
+      String sourcePath = cropped ?? pickedFile.path;
       
       try {
         final docsDir = await getApplicationDocumentsDirectory();
@@ -549,16 +540,6 @@ void backgroundUpdate() async {
   String? imagePath = prefs.getString('imagePath');
 
   try {
-    
-    // Гарантоване зчитування фонової картинки з постійної пам'яті для фонового процесу
-    try {
-      final appDir = await getApplicationDocumentsDirectory();
-      final bgFile = File('${appDir.path}/persistent_widget_bg.jpg');
-      if (await bgFile.exists()) {
-        imagePath = bgFile.path;
-      }
-    } catch (_) {}
-
     await HomeWidget.renderFlutterWidget(
       TimeOfWarWidgetRender(
         show2022: show2022,
