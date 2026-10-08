@@ -22,7 +22,7 @@ void callbackDispatcher() {
     await HomeWidget.saveWidgetData('text_2022', getGlobalAccurateTime(DateTime(2022, 2, 24, 2, 40), dO, sh));
     await HomeWidget.saveWidgetData('text_2014', getGlobalAccurateTime(DateTime(2014, 2, 20, 12, 0), dO, sh));
     
-    await HomeWidget.updateWidget(name: 'TimeOfWarWidgetProvider', iOSName: 'TimeOfWarWidget');
+    await HomeWidget.updateWidget(name: 'WidgetProvider', iOSName: 'TimeOfWarWidget');
     return Future.value(true);
   });
 }
@@ -414,7 +414,7 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
         setState(() => _imagePath = savedFile.path);
         await _saveSetting('imagePath', savedFile.path);
       } catch (e) {
-        setState(() => _imagePath = sourcePath);
+        // Overwrite removed: keeping persistent path only
         await _saveSetting('imagePath', sourcePath);
       }
     }
@@ -507,7 +507,21 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
 
 
 @pragma('vm:entry-point')
+
 void backgroundUpdate() async {
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
+    
+    final appDir = await getApplicationDocumentsDirectory();
+    final persistentFile = File('${appDir.path}/persistent_widget_bg.jpg');
+    
+    if (await persistentFile.exists()) {
+      await prefs.setString('imagePath', persistentFile.path);
+    }
+  } catch (_) {}
+
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
