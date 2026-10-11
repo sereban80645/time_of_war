@@ -410,6 +410,8 @@ class _TimeOfWarScreenState extends State<TimeOfWarScreen> {
         final persistentPath = '${docsDir.path}/widget_bg_saved.png';
         
         final savedFile = await File(sourcePath).copy(persistentPath);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('imagePath', persistentPath);
         
         setState(() => _imagePath = savedFile.path);
         await _saveSetting('imagePath', savedFile.path);
@@ -551,6 +553,15 @@ void backgroundUpdate() async {
   int sb = (prefs.getDouble('sb') ?? 0.0).toInt();
 
   String? imagePath = prefs.getString('imagePath');
+  if (imagePath == null || !File(imagePath).existsSync()) {
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final fallbackFile = File('${appDir.path}/persistent_widget_bg.jpg');
+      if (await fallbackFile.exists()) {
+        imagePath = fallbackFile.path;
+      }
+    } catch (_) {}
+  }
 
   try {
     await HomeWidget.renderFlutterWidget(
