@@ -38,7 +38,7 @@ String getGlobalAccurateTime(DateTime startDate, bool showDaysOnly, bool showHou
     if (minutes < 0) hours--;
     if (hours < 0) hours += 24;
     String out = "${totalDays}д.";
-    if (showHour) out += " ${hours}г.";
+    if (showHour) out += " ${hours}р.";
     return out;
   } else {
     int years = n.year - startDate.year;
@@ -50,7 +50,7 @@ String getGlobalAccurateTime(DateTime startDate, bool showDaysOnly, bool showHou
     if (hours < 0) { days--; hours += 24; }
     if (days < 0) { months--; final pMonth = DateTime(n.year, n.month, 0); days += pMonth.day; }
     if (months < 0) { years--; months += 12; }
-    return "${years}р. ${months}міс. ${days}д. ${hours}г.";
+    return "${years}р. ${months}міс. ${days}д. ${hours}р.";
   }
 }
 
