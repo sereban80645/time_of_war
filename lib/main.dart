@@ -553,6 +553,7 @@ void backgroundUpdate() async {
   int sb = (prefs.getDouble('sb') ?? 0.0).toInt();
 
   String? imagePath = prefs.getString('imagePath');
+  print('DEBUG_WIDGET: loaded imagePath from prefs = $imagePath');
   if (imagePath == null || !File(imagePath).existsSync()) {
     try {
       final appDir = await getApplicationDocumentsDirectory();
