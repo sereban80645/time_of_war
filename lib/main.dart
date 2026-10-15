@@ -32,7 +32,7 @@ void callbackDispatcher() {
 String getGlobalAccurateTime(DateTime startDate, bool showDaysOnly, bool showHour) {
   final n = DateTime.now();
   if (showDaysOnly) {
-    int totalDays = n.difference(startDate).inDays;
+    int totalDays = DateTime(n.year, n.month, n.day).difference(DateTime(startDate.year, startDate.month, startDate.day)).inDays;
     int hours = n.hour - startDate.hour;
     int minutes = n.minute - startDate.minute;
     if (minutes < 0) hours--;
@@ -50,7 +50,9 @@ String getGlobalAccurateTime(DateTime startDate, bool showDaysOnly, bool showHou
     if (hours < 0) { days--; hours += 24; }
     if (days < 0) { months--; final pMonth = DateTime(n.year, n.month, 0); days += pMonth.day; }
     if (months < 0) { years--; months += 12; }
-    return "${years}р. ${months}міс. ${days}д. ${hours}р.";
+    String out = "${years}р. ${months}міс. ${days}д.";
+  if (showHour) out += " ${hours}р.";
+  return out;
   }
 }
 
