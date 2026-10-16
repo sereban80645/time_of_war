@@ -538,7 +538,7 @@ void backgroundUpdate() async {
   String time2022 = getGlobalAccurateTime(DateTime(2022, 2, 24, 2, 40), showDaysOnly, showHour);
   String time2014 = getGlobalAccurateTime(DateTime(2014, 2, 20, 12, 0), showDaysOnly, showHour);
 
-  double fontSize = prefs.getDouble('fontSize') ?? 14.0;
+  double fontSize = prefs.getDouble('fontSize') ?? 22.0;
   double strokeWidth = prefs.getDouble('strokeWidth') ?? 2.0;
   double opacity = prefs.getDouble('opacity') ?? 0.5;
 
